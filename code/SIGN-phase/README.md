@@ -40,5 +40,7 @@ trainer without changing its algorithm.
 The canonical model code does not contain ablation-result files or baseline
 implementations. Use `SIGN-main/` for the compact
 complete Phase-I/Phase-II Fig. 2 implementation,
-`Sign-Robust/` for robustness matrices, and `SIGN-prediction/` for
-joint-vector SIGN prediction.
+`Sign-Robust/` for robustness matrices,
+[`../SIGN_fhn_pred/`](../SIGN_fhn_pred/README.md) for the FHN prediction
+experiment, and [`../SIGN_sst_pred/`](../SIGN_sst_pred/README.md) for the
+ENSO/SST experiment.

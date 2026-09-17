@@ -14,7 +14,7 @@ used by SIGN.
 - `make_benchmark.py`: create a benchmark batch from a configuration;
 - `prepare_npz_for_e2v3.py`: convert `[time,node,dimension]` NPZ data to the
   canonical `[node,time,dimension]` PyG layout;
-- `prepare_fhn_prediction.py`: prepare the 1,000-node FHN prediction example;
+- `prepare_fhn_prediction.py`: create the 1,000-node FHN NPZ data record;
 - `prepare_sst_dataset.py`: convert an SST PyG object or dense array while
   preserving the source graph and time coordinate;
 - `prepare_empirical_networks.py`: convert raw edge files on demand without
@@ -37,10 +37,14 @@ The canonical E2V3 trainer uses its original PyG dataset interface. Use the
 NPZ adapter when a generated robustness case needs to enter `SIGN-phase`.
 
 FHN and SST preparation scripts are kept separate because the experiments use
-different graph/data sources. The large FHN protocol is based on the existing
-`bn-human` partition workflow and produces 22,198 nodes; the public package
-includes the 1,000-node smoke example only. The SST adapter supports the
-71,987-node, 120-step graph trajectory supplied under `SIGN-data/prediction`.
+different graph/data sources. These adapters create archival NPZ records; the
+replacement [`SIGN_fhn_pred`](../SIGN_fhn_pred/README.md) and
+[`SIGN_sst_pred`](../SIGN_sst_pred/README.md) trainers use the original
+PyTorch-Geometric dataset layout described in their package README files. The
+large FHN protocol is based on the existing `bn-human` partition workflow and
+produces 22,198 nodes; the public package includes the 1,000-node NPZ record
+only. The SST adapter supports the 71,987-node, 120-step graph trajectory
+supplied under `SIGN-data/prediction`.
 
 Large synthetic trajectories are not committed. Use the generation scripts
 with the parameters in `Sign-Robust/configs` or the manuscript. Empirical

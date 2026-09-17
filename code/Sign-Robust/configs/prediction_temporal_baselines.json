@@ -16,5 +16,5 @@
   "external_comparison_methods": ["Persistence", "AR"],
   "horizons": [1, 5, 10, 20, 50, 99],
   "evaluation": ["mean_nodewise_state_MSE", "temporal_increment_MSE"],
-  "implementation": {"identifier": "../SIGN-phase/trainer.py", "prediction_runner": "../SIGN-prediction/run_equation_prediction.py", "prediction_state_policy": "joint_vector_free_rollout_after_boundary", "external_comparison_note": "Comparison methods are not implemented in this repository."}
+  "implementation": {"identifier": "../SIGN-phase/trainer.py", "prediction_runner": "not distributed; the former SIGN-prediction runner was retired", "prediction_state_policy": "joint_vector_free_rollout_after_boundary", "external_comparison_note": "Comparison methods are not implemented in this repository."}
 }

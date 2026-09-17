@@ -24,9 +24,9 @@ redistributed here.
 | `prediction_temporal_baselines` | SI VII.B.4 | SIGN recursive SIS/MM prediction; comparison methods external |
 
 The SST empirical SIGN prediction entry point is implemented by
-`SIGN-prediction/run_sst_prediction.py`. It uses a 96/24 split and
-training-only Fourier period selection. SST comparison baselines are not
-included in this repository.
+`SIGN_sst_pred/trainer.py`. It uses a 96/24 split and training-only Fourier
+period selection. SST comparison baselines are not included in this
+repository.
 
 ## Parameter decisions
 

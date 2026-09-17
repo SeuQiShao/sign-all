@@ -30,5 +30,5 @@
   "additional_1000_node_comparison": {"num_nodes": 1000, "horizon": 100, "noise_snr_db": [30, 50], "external_comparison_methods": ["MTGNN", "ASTGCN", "MSTGCN", "STSGCN", "STGCN"]},
   "evaluation": ["RMSE", "MAPE", "MSE", "node_level_MSE", "train_test_segment_error"],
   "reported_reference": {"snr_50_rmse": 0.0258, "snr_30_rmse": 0.1519, "comparison_1000_node": {"snr_50_rmse": 0.0175, "snr_50_mape_percent": 7.6013, "snr_30_rmse": 0.0476, "snr_30_mape_percent": 30.4711}},
-  "implementation": {"generator": "../Data_generation/prepare_fhn_prediction.py", "identifier": "../SIGN-prediction/run_fhn_prediction.py", "state_policy": "joint_vector_free_rollout_after_boundary", "external_source_note": "bn-human source and partition input are described in Empirical_networks/README.md"}
+  "implementation": {"generator": "../Data_generation/prepare_fhn_prediction.py", "identifier": "../SIGN_fhn_pred/trainer.py", "state_policy": "partitioned autonomous rollout without future target values", "external_source_note": "bn-human source and partition input are described in Empirical_networks/README.md and SIGN_fhn_pred/README.md"}
 }

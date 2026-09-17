@@ -23,8 +23,10 @@ python Data_generation/prepare_empirical_networks.py `
 
 The large FHN experiment uses the `bn-human` network and the existing
 partition workflow to select 22,198 nodes. That source data and its partition
-output must be obtained externally. ENSO/SST data are supplied separately in
-`SIGN-data/prediction`.
+output must be obtained externally. The FHN trainer's staging requirements are
+in [`../SIGN_fhn_pred/README.md`](../SIGN_fhn_pred/README.md). ENSO/SST source
+records are supplied in `../SIGN-data/prediction` and
+`../SIGN_sst_pred/SIGN_data`.
 
 Do not assume that the source repositories grant redistribution rights; cite
 each original dataset as required by its provider and by the manuscript.

@@ -38,17 +38,17 @@ python SIGN-main\run_fig2.py `
   --output SIGN-main\output\fig2
 ```
 
-The supplied prediction examples are:
+The experiment-specific prediction packages are:
 
 ```powershell
-python SIGN-prediction\run_fhn_prediction.py `
-  --data SIGN-data\prediction\fhn_2d.npz `
-  --output SIGN-prediction\output\fhn
+cd SIGN_fhn_pred
+python trainer.py --ode_model FHN --network from_file --dims 2
 
-python SIGN-prediction\run_sst_prediction.py `
-  --data SIGN-data\prediction\sst_enso_71987.npz `
-  --output SIGN-prediction\output\sst
+cd ..\SIGN_sst_pred
+python trainer.py --ode_model enso --num-atoms 71987 --dims 1 --time-stamp 120
 ```
+
+Both packages use PyTorch-Geometric data roots rather than the former unified NPZ runner. The SST package includes its raw PyG record; the paper-scale FHN partition must be staged locally. See [`code/SIGN_fhn_pred/README.md`](code/SIGN_fhn_pred/README.md) and [`code/SIGN_sst_pred/README.md`](code/SIGN_sst_pred/README.md) before running either experiment.
 
 For the full experiment map—including what is directly runnable, what needs external inputs, and what is protocol-only—see [`code/docs/EXPERIMENT_COVERAGE.md`](code/docs/EXPERIMENT_COVERAGE.md).
 
@@ -70,7 +70,8 @@ The main implementation components are:
 
 - `SIGN-main/`: compact complete Phase-I/Phase-II path for the Fig. 2 benchmark.
 - `SIGN-phase/`: canonical E2V3 implementation for support discovery and fixed-support coefficient refinement.
-- `SIGN-prediction/`: joint-vector FHN, SST, and generic equation-prediction runners.
+- `SIGN_fhn_pred/`: FHN network-prediction experiment for the partitioned `bn-human` protocol.
+- `SIGN_sst_pred/`: ENSO/SST prediction experiment with the 96/24 split and Fourier time basis.
 - `Sign-Robust/`: declarative robustness configurations, validators, and experiment-matrix utilities.
 - `Data_generation/`: simulation, graph, robustness, and data-preparation tools.
 - `SIGN-data/`: bundled smoke-scale synthetic data plus FHN and SST examples.
@@ -83,7 +84,7 @@ The distributed synthetic and 1,000-node FHN data are smoke-scale examples. Larg
 
 This release contains SIGN code and experiment protocols only. It does not redistribute third-party baseline implementations (including MTGNN, ASTGCN, MSTGCN, STSGCN, STGCN, TP-SINDy, and LaGNA). Details of data rights, external baselines, and required attribution are in [`code/DATA_LICENSES.md`](code/DATA_LICENSES.md).
 
-Generated outputs are written beneath the relevant component's `output/` directory. The clean repository retains output-directory README files but not large generated artifacts.
+Most components write generated artifacts beneath their local `output/` directory. `SIGN_fhn_pred` and `SIGN_sst_pred` instead write timestamped runs beneath `logs/` plus selected CSV outputs in their working directories. The clean repository excludes generated artifacts.
 
 ## Citation and license
 

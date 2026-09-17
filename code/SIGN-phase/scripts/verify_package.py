@@ -24,8 +24,8 @@ def require_files() -> None:
         COMPACT_ROOT / "trainer.py",
         COMPACT_ROOT / "run_fig2.py",
         NC_ROOT / "Data_generation" / "generate_dataset.py",
-        NC_ROOT / "SIGN-prediction" / "run_fhn_prediction.py",
-        NC_ROOT / "SIGN-prediction" / "run_sst_prediction.py",
+        NC_ROOT / "SIGN_fhn_pred" / "trainer.py",
+        NC_ROOT / "SIGN_sst_pred" / "trainer.py",
         NC_ROOT / "Sign-Robust" / "manifest.json",
     ]
     missing = [str(path) for path in required if not path.exists()]

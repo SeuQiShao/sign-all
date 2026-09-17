@@ -21,11 +21,11 @@ third-party baseline implementations.
 | Fig. 4d-e; SI VI.D | Structured topology, missing nodes/edges | `configs/structure_incompleteness.json` | Matrix runnable |
 | SI VI.E; Tables S9-S10 | FN/FP adjacency estimates | `run_robust_case.py`, `configs/imperfect_adjacency_fn_fp.json` | Matrix runnable |
 | Fig. 4f; SI VI.F | SIGN scalability protocol | `configs/baseline_scalability.json` | SIGN path runnable; comparison methods external |
-| Fig. 5; SI VII.A-B | FHN 1,000-node prediction | `SIGN-prediction/run_fhn_prediction.py`, `SIGN-data/prediction/fhn_2d.npz` | Runnable smoke example |
+| Fig. 5; SI VII.A-B | FHN 1,000-node / partitioned-network prediction | `SIGN_fhn_pred/trainer.py` | Runnable after staging the required PyG input; public NPZ record is archival |
 | Fig. 5; SI VII.A-B | FHN 22,198-node bn-human prediction | `configs/fhn_prediction_robustness.json`, `prepare_fhn_prediction.py` | Requires external partition input |
 | Fig. 5; SI VII.A-B | MTGNN/ASTGCN/MSTGCN/STSGCN/STGCN comparison | Protocol metadata in `fhn_prediction_robustness.json` | External baselines sourced from the unified GitHub STG4Traffic repository; implementations omitted |
-| SI VII.B.4; Tables S16-S17 | SIS/MM recursive SIGN prediction | `SIGN-prediction/run_equation_prediction.py` | SIGN path runnable; comparison methods omitted |
-| Fig. 6; SI VII.C; Table S18 | SST 96/24 SIGN prediction and Fourier terms | `SIGN-prediction/run_sst_prediction.py`, `SIGN-data/prediction/sst_enso_71987.npz` | SIGN path runnable; comparison methods omitted |
+| SI VII.B.4; Tables S16-S17 | SIS/MM recursive SIGN prediction | `SIGN-phase/trainer.py`, `Sign-Robust/configs/prediction_temporal_baselines.json` | Protocol recorded; the retired dedicated equation-prediction runner is not distributed |
+| Fig. 6; SI VII.C; Table S18 | SST 96/24 SIGN prediction and Fourier terms | `SIGN_sst_pred/trainer.py`, `SIGN_sst_pred/SIGN_data/enso_71987/raw/data1.pt` | Runnable after configuring its local PyG data root; comparison methods omitted |
 
 ## Data policy
 
@@ -37,4 +37,4 @@ partition input are not redistributed.
 ## Validation scope
 
 The distributed package provides import, basis, catalog, configuration, and
-small-case execution checks. 
+small-case execution checks.

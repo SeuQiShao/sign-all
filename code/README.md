@@ -12,7 +12,8 @@ The standalone figure renderers are in [`../Plot/`](../Plot/README.md).
 code/
 ├── SIGN-main/           Compact, complete two-phase SIGN benchmark path (Fig. 2)
 ├── SIGN-phase/          Canonical E2V3 Phase-I/Phase-II implementation
-├── SIGN-prediction/     Joint-vector prediction runners for FHN, SST, and equations
+├── SIGN_fhn_pred/       FHN partitioned-network prediction experiment
+├── SIGN_sst_pred/       ENSO/SST prediction experiment with Fourier time terms
 ├── Sign-Robust/         Configuration registry and robustness-matrix runners
 ├── Data_generation/     Dynamics, graphs, simulation, and data-conversion tools
 ├── SIGN-data/           Bundled synthetic smoke data and FHN/SST examples
@@ -77,18 +78,14 @@ converts a generated NPZ case to this canonical input format.
 ### Run prediction examples
 
 ```powershell
-python SIGN-prediction\run_fhn_prediction.py `
-  --data SIGN-data\prediction\fhn_2d.npz `
-  --output SIGN-prediction\output\fhn
+cd SIGN_fhn_pred
+python trainer.py --ode_model FHN --network from_file --dims 2
 
-python SIGN-prediction\run_sst_prediction.py `
-  --data SIGN-data\prediction\sst_enso_71987.npz `
-  --output SIGN-prediction\output\sst
+cd ..\SIGN_sst_pred
+python trainer.py --ode_model enso --num-atoms 71987 --dims 1 --time-stamp 120
 ```
 
-Discovery fits multidimensional systems one coordinate at a time. Prediction
-instead advances the complete state vector jointly after the forecast
-boundary, without accessing future components.
+These are separate, experiment-specific packages, not the former unified NPZ runner. `SIGN_sst_pred` includes its raw PyG input under `SIGN_data/enso_71987`; `SIGN_fhn_pred` requires a staged PyG partition input. Both packages retain an original machine-specific data-root setting that must be set for the local checkout. Read their package README files before running: [`SIGN_fhn_pred/README.md`](SIGN_fhn_pred/README.md) and [`SIGN_sst_pred/README.md`](SIGN_sst_pred/README.md).
 
 ### Inspect or expand robustness protocols
 
@@ -104,12 +101,13 @@ expansion writes deterministic JSONL task records; it does not start training.
 
 ## Data policy and scope
 
-`SIGN-data/synthetic` and the 1,000-node FHN data are smoke-scale examples.
+`SIGN-data/synthetic` and the NPZ FHN record are smoke-scale/audit examples.
 Large synthetic trajectories are generated on demand. Raw empirical networks
 and the 22,198-node FHN partition input are not included; see
 `Empirical_networks/README.md` for acquisition instructions. The bundled SST
-example contains the time-major 71,987-node trajectory used by the SST runner;
-its provenance is documented in `SIGN-data/prediction/SST_PROVENANCE.md`.
+NPZ record is a time-major 71,987-node archive; the native SST experiment input
+is the PyG record under `SIGN_sst_pred/SIGN_data/`. Its provenance is documented
+in `SIGN-data/prediction/SST_PROVENANCE.md`.
 
 The codebase distributes SIGN methods only. Baselines including MTGNN,
 ASTGCN, MSTGCN, STSGCN, STGCN, TP-SINDy, LaGNA, and related implementations
@@ -119,9 +117,11 @@ crosswalk, including what is directly runnable versus protocol-only, is in
 
 ## Outputs and citation
 
-Each runnable component writes results beneath its local `output/` directory;
-these directories retain only their README files in a clean package. Outputs
-typically record run configuration, metrics, phase provenance, and model
-artifacts. Cite the work using [`CITATION.cff`](CITATION.cff), and consult
+Most runnable components write results beneath a local `output/` directory;
+these directories retain only their README files in a clean package.
+`SIGN_fhn_pred` and `SIGN_sst_pred` write timestamped runs beneath `logs/`
+and selected CSV outputs in their working directories. Outputs typically
+record run configuration, metrics, phase provenance, and model artifacts.
+Cite the work using [`CITATION.cff`](CITATION.cff), and consult
 [`DATA_LICENSES.md`](DATA_LICENSES.md) before redistributing data or comparing
 against external methods.
