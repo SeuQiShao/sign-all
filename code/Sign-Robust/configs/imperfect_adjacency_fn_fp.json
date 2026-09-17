@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "imperfect_adjacency_fn_fp",
+  "paper_reference": ["SI:VI.E", "SI:Tables S9-S10"],
+  "status": "paper_exact",
+  "purpose": "Quantify equation-recovery degradation when an available adjacency estimate contains false-negative and false-positive edges.",
+  "data_generation": {
+    "systems": ["kuramoto", "fhn", "rossler"],
+    "num_nodes": 1000,
+    "num_points": 1000,
+    "dt": 0.01,
+    "network_mapping": {"kuramoto": "power_law", "fhn": "small_world", "rossler": "small_world"},
+    "seeds": [0, 1, 2, 3, 4],
+    "trajectory_policy": "generate_once_with_true_adjacency_per_system_seed_then_reuse",
+    "fn_rate": [0.01, 0.10, 0.15, 0.20],
+    "fp_rate": [0.01, 0.10, 0.15, 0.20],
+    "corruption_policy": {
+      "false_negative": "remove_random_fraction_of_true_edges",
+      "false_positive": "add_random_non_edges_equal_to_rate_times_original_edge_count",
+      "apply_to": "adjacency_supplied_to_phase1_and_phase2",
+      "trajectory_adjacency_remains_true": true
+    },
+    "expected_cases": 240
+  },
+  "model": {"pipeline": ["phase1_support_identification", "phase2_fixed_support_coefficient_refinement"], "corruption_specific_tuning": false},
+  "evaluation": ["adjacency_f1", "support_precision", "support_recall", "support_f1", "K", "coefficient_sMAPE", "active_coefficient_error", "rollout_MSE"],
+  "outputs": {"raw": "csv", "summary": ["mean", "std"], "heatmaps": ["kuramoto_coefficient_sMAPE", "fhn_coefficient_sMAPE", "rossler_coefficient_sMAPE"], "summary_panel": "adjacency_F1_vs_support_F1"},
+  "scope_guard": "SIGN assumes an available adjacency estimate; this is not unknown-network inference.",
+  "implementation": {"case_runner": "../Sign-Robust/scripts/run_robust_case.py", "matrix_runner": "../Sign-Robust/scripts/run_robust_matrix.sh", "generator": "../Data_generation/generate_robust.py", "identifier": "../SIGN-phase/trainer.py"}
+}

@@ -1,0 +1,25 @@
+{
+  "system": "sst",
+  "source": "supplied PyTorch-Geometric SST graph converted by Data_generation/prepare_sst_dataset.py",
+  "shape_source": [
+    120,
+    71987,
+    1
+  ],
+  "dimension": 1,
+  "num_nodes": 71987,
+  "original_num_nodes": 71987,
+  "dropped_invalid_nodes": 0,
+  "num_steps": 120,
+  "displayed_time_steps": 119,
+  "excluded_initial_state": 0,
+  "time_index_note": "Stored index 0 is the initial observed/true state and is not included in the 119-month plotted sequence.",
+  "time_coordinate": "source Data.t when available; otherwise integer sample index",
+  "graph": "source edge_index",
+  "directed": true,
+  "edge_convention": "edge_index[0] source -> edge_index[1] target",
+  "generator": "Data_generation/prepare_sst_dataset.py",
+  "upstream_dataset": "SSTG (Cao et al., Earth System Science Data 13, 2111–2134, 2021)",
+  "source_type": "torch_geometric.data.Data",
+  "edge_index_source": "PyG Data.edge_index"
+}

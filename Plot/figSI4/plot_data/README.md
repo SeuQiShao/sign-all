@@ -1,0 +1,1 @@
+Compact CSVs generated from the 120-state, 71,987-node ENSO SST true/predicted arrays. Stored state index 0 is the initial observed/true value and is not plotted; the CSVs represent the 119 displayed monthly states at indices 1–119. Values are in degrees C after inverse normalization. No observations were sampled or dropped from the displayed states.

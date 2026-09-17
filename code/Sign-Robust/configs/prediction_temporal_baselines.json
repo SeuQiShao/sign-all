@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "prediction_temporal_baselines",
+  "paper_reference": ["SI:VII.B.4", "SI:Tables S16-S17"],
+  "status": "paper_exact",
+  "purpose": "Check whether equation-based rollout accuracy on revised clean SIS and MM can be explained by temporal persistence or AR alone.",
+  "data_generation": {
+    "systems": ["sis", "michaelis_menten"],
+    "condition": "revised_clean",
+    "held_out_parts": 4,
+    "max_horizon": 99,
+    "rollout_is_recursive": true,
+    "uses_intermediate_ground_truth": false
+  },
+  "methods": ["SIGN"],
+  "external_comparison_methods": ["Persistence", "AR"],
+  "horizons": [1, 5, 10, 20, 50, 99],
+  "evaluation": ["mean_nodewise_state_MSE", "temporal_increment_MSE"],
+  "implementation": {"identifier": "../SIGN-phase/trainer.py", "prediction_runner": "../SIGN-prediction/run_equation_prediction.py", "prediction_state_policy": "joint_vector_free_rollout_after_boundary", "external_comparison_note": "Comparison methods are not implemented in this repository."}
+}

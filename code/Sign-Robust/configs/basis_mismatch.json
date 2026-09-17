@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "basis_mismatch",
+  "paper_reference": ["main:2.4", "main:Fig.4c", "SI:VI.C", "SI:Fig.S2"],
+  "status": "paper_exact",
+  "purpose": "Evaluate explicit sparse surrogate integration when the true nonlinearity is absent from the candidate library.",
+  "shared": {"network": "small_world", "num_nodes": 1000, "candidate_library": ["polynomial", "trigonometric"], "replicates": 10},
+  "mutualistic": {
+    "system": "mutualistic",
+    "dimension": 1,
+    "parameters": {"B": 0.1, "K": 5, "C": 1, "D": 5, "E": 0.9, "H": 0.1},
+    "excluded_true_term": "xi*xj/(D + E*xi + H*xj)",
+    "expected_output": ["nodewise_trajectory_MSE", "log_error_distribution", "explicit_surrogate_equation"]
+  },
+  "chua": {
+    "system": "chua",
+    "dimension": 3,
+    "parameters": {"epsilon": 0.1, "alpha": 15.6, "delta": 28, "a": -1.143, "b": -0.714},
+    "excluded_true_term": "abs(x+1)-abs(x-1)",
+    "expected_output": ["nodewise_trajectory_MSE", "x1_x2_x3_trajectory", "phase_portrait_double_scroll", "explicit_surrogate_equation"]
+  },
+  "evaluation": ["trajectory_reconstruction_MSE", "qualitative_attractor_preservation", "surrogate_support_size"],
+  "implementation": {"generator": "../Data_generation/generate_robust.py", "identifier": "../SIGN-phase/trainer.py"}
+}

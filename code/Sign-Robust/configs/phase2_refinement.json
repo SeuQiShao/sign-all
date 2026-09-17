@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "phase2_refinement",
+  "paper_reference": ["main:2.3", "main:Fig.3f-g", "SI:V.C-D", "SI:Tables S6-S8"],
+  "status": "paper_exact",
+  "purpose": "Quantify conservative Phase-II pruning and its effect on equation rollout.",
+  "support_matrix": {
+    "systems": ["kuramoto", "fhn", "rossler"],
+    "equation_dimensions": {"kuramoto": [1], "fhn": [1, 2], "rossler": [1, 2, 3]},
+    "libraries": ["L1", "L2", "L3"],
+    "conditions": ["clean", "noise_snr50", "sparse_200"],
+    "seeds": [0, 1, 2, 3, 4],
+    "expected_paired_records": 270,
+    "phase2_can_add_terms": false,
+    "phase2_can_remove_terms": true,
+    "reported_delta": {"K": -0.3148, "precision": 0.0289, "recall": -0.0123, "f1": 0.0141}
+  },
+  "rollout_matrix": {
+    "system": "rossler",
+    "library": "L2",
+    "condition": "noise_snr50",
+    "seeds": [0, 1, 2, 3, 4],
+    "horizons": [5, 10, 50, 100],
+    "methods": ["Phase_I", "Phase_II_fixed", "5pt_OLS", "5pt_Ridge", "Euler_OLS"],
+    "integrator": "forward_euler",
+    "initial_state": "same_noisy_initial_state",
+    "reference_time_intervals": [0.05, 0.1, 0.501, 1.001]
+  },
+  "evaluation": ["delta_K", "delta_precision", "delta_recall", "delta_f1", "rollout_MSE", "relative_error_reduction_percent"],
+  "implementation": {"identifier": "../SIGN-phase/trainer.py", "runner": "../Sign-Robust/scripts/run_canonical_npz_case.py"}
+}

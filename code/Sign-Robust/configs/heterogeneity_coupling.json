@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "heterogeneity_coupling",
+  "paper_reference": ["main:2.4", "SI:VI.B", "SI:Fig.S1d-e,i-j"],
+  "status": "paper_range",
+  "purpose": "Test departures from shared parameters through heterogeneous Kuramoto frequencies and strong FHN coupling.",
+  "kuramoto_heterogeneity": {
+    "system": "kuramoto",
+    "network": "small_world",
+    "network_sizes": [1000, 100000],
+    "frequency_distribution": "Normal(0.3, sigma^2)",
+    "sigma_range": [0.03, 0.3],
+    "discrete_levels": "not enumerated in SI; preserve endpoint range",
+    "replicates": 10,
+    "evaluation": ["coefficient_SMAPE", "support_F1"]
+  },
+  "fhn_coupling": {
+    "system": "fhn",
+    "network": "small_world",
+    "network_sizes": [1000, 100000],
+    "coupling_strength_range": [3, 10],
+    "baseline_coupling_in_dynamics_section": 0.1,
+    "discrete_levels": "not enumerated in SI; preserve endpoint range",
+    "replicates": 10,
+    "evaluation": ["coefficient_SMAPE", "mean_synchronization_order_parameter"]
+  },
+  "implementation": {"generator": "../Data_generation/generate_robust.py", "identifier": "../SIGN-phase/trainer.py"}
+}

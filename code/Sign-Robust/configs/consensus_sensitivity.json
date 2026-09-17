@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "consensus_sensitivity",
+  "paper_reference": ["main:2.3", "main:Fig.3c", "SI:V.B"],
+  "status": "paper_range",
+  "purpose": "Test whether Phase-I support recovery depends on DBSCAN radius and minimum-sample settings.",
+  "data_generation": {
+    "system": "rossler",
+    "condition": "noise",
+    "snr_db": 50,
+    "library": "L2",
+    "num_nodes": 1000,
+    "num_points": 1000,
+    "dt": 0.01,
+    "seeds": [0, 1, 2, 3, 4]
+  },
+  "model": {
+    "dbscan": {
+      "eps_scale": {"min": 0.5, "max": 2.0},
+      "min_samples_scale": {"min": 0.5, "max": 2.0},
+      "nominal_min_samples": 2,
+      "tested_parameter_combinations": 24,
+      "discrete_values": "not enumerated in SI; use source implementation nominal grid"
+    }
+  },
+  "evaluation": ["support_f1", "support_precision", "support_recall", "K"],
+  "reported_reference": {"nominal_f1": 0.874, "mean_f1_range": [0.783, 0.894]},
+  "implementation": {
+    "generator": "../Data_generation/generate_robust.py",
+    "identifier": "../SIGN-phase/trainer.py"
+  }
+}

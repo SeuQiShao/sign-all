@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "project": "Sign-Robust",
+  "reference_model": "E2V3",
+  "manuscript": {
+    "main_text": "manuscript supplied with the submission package",
+    "supplementary_information": "SI supplied with the submission package"
+  },
+  "shared_config": "configs/base_e2v3.json",
+  "configs": [
+    "configs/support_library_recovery.json",
+    "configs/consensus_sensitivity.json",
+    "configs/consensus_strategies.json",
+    "configs/phase2_refinement.json",
+    "configs/observation_noise_sampling.json",
+    "configs/heterogeneity_coupling.json",
+    "configs/basis_mismatch.json",
+    "configs/structure_incompleteness.json",
+    "configs/imperfect_adjacency_fn_fp.json",
+    "configs/baseline_scalability.json",
+    "configs/fhn_prediction_robustness.json",
+    "configs/prediction_temporal_baselines.json"
+  ],
+  "excluded_from_robustness": [
+    "SI VII.C SST AR(12)/climatology baseline comparison"
+  ]
+}

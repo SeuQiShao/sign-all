@@ -1,0 +1,4 @@
+# The configuration validators use only the Python standard library.
+# These packages are needed for materializing numerical robustness data.
+numpy>=1.24
+networkx>=3.0

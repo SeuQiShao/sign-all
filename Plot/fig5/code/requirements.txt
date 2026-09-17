@@ -1,0 +1,7 @@
+matplotlib
+numpy
+scipy
+Pillow
+networkx
+pypdf>=5.0
+reportlab>=4.0

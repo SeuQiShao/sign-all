@@ -1,0 +1,10 @@
+numpy
+scipy
+pandas
+networkx
+scikit-learn
+matplotlib
+tqdm
+torch
+torch-geometric
+torchdiffeq

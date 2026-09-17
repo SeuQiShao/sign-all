@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "consensus_strategies",
+  "paper_reference": ["main:2.3", "main:Fig.3d-e", "SI:V.B", "SI:Table S5"],
+  "status": "paper_exact",
+  "purpose": "Compare DBSCAN with direct all-regression aggregation, majority voting, and Ward hierarchical clustering.",
+  "data_generation": {
+    "systems": ["kuramoto", "fhn", "rossler"],
+    "equation_dimensions": {"kuramoto": [1], "fhn": [1, 2], "rossler": [1, 2, 3]},
+    "conditions": ["clean", "noise_snr50", "sparse_200"],
+    "library": "L2",
+    "num_nodes": 1000,
+    "num_points": 1000,
+    "dt": 0.01,
+    "seeds": [0, 1, 2, 3, 4]
+  },
+  "model": {
+    "strategies": {
+      "DBSCAN": {"type": "dbscan", "min_samples": 2},
+      "All": {"type": "all_regression_aggregation"},
+      "Voting": {"type": "majority_vote", "support_threshold": 0.5},
+      "HC": {"type": "ward_hierarchical_clustering", "num_clusters": 2}
+    }
+  },
+  "rollout": {"system": "rossler", "condition": "noise_snr50", "horizons": [5, 10, 50, 100], "integrator": "forward_euler"},
+  "evaluation": ["support_f1", "coefficient_sMAPE", "rollout_MSE"],
+  "implementation": {"identifier": "../SIGN-phase/trainer.py", "consensus_runner": "../Sign-Robust/scripts/run_robust_case.py"}
+}

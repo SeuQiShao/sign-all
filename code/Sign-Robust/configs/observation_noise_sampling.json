@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "observation_noise_sampling",
+  "paper_reference": ["main:2.4", "main:Fig.4a-b", "SI:VI.A", "SI:Fig.S1a-c,f-h"],
+  "status": "paper_exact",
+  "purpose": "Measure robustness to additive observation noise and limited temporal resolution at two network scales.",
+  "data_generation": {
+    "systems": ["kuramoto", "sis", "michaelis_menten", "fhn", "hr", "rossler"],
+    "network": "small_world",
+    "network_sizes": [1000, 100000],
+    "base_num_points": 1000,
+    "base_dt": 0.01,
+    "replicates": 10,
+    "noise": {
+      "snr_db": [30, 40, 50, 60, 70],
+      "formula": "10*log10(P_signal/sigma_eta^2)",
+      "distribution": "zero_mean_gaussian",
+      "apply_to": "clean_trajectory"
+    },
+    "limited_points": {"observed_points": [1000, 800, 600, 400, 200], "sample_from": 1000, "sampling_interval": 0.01},
+    "coarse_dt": {"dt": [0.01, 0.02, 0.03, 0.04, 0.05], "num_points": 1000}
+  },
+  "evaluation": ["coefficient_sMAPE", "support_f1", "rollout_MSE", "synchronization_order_parameter_where_applicable"],
+  "notes": ["Main Fig.4a caption says down to 60 dB, while the body and SI specify 30–70 dB; use the SI range.", "SI Fig.S1 panels a–e are N=1000 and f–j are N=100000."],
+  "implementation": {"generator": "../Data_generation/generate_robust.py", "identifier": "../SIGN-phase/trainer.py"}
+}

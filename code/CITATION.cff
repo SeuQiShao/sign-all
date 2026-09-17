@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use SIGN, please cite the associated manuscript."
+title: "Predicting Dynamics of Ultra-Large Complex Systems by Inferring Governing Equations"
+version: 1.0.0
+date-released: 2026-09-15
+authors:
+  - family-names: Shao
+    given-names: Qi
+  - family-names: Chen
+    given-names: Duxin
+  - family-names: Chen
+    given-names: Jiawen
+  - family-names: Zeng
+    given-names: Yujie
+  - family-names: Ma
+    given-names: Athen
+  - family-names: Yu
+    given-names: Wenwu
+  - family-names: Latora
+    given-names: Vito
+  - family-names: Lin
+    given-names: Wei
+keywords:
+  - network dynamics
+  - equation discovery
+  - graph neural networks
+  - sparse identification

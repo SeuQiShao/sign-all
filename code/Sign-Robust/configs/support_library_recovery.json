@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "support_library_recovery",
+  "paper_reference": ["main:2.3", "SI:V.A", "SI:Table S4"],
+  "status": "paper_exact",
+  "purpose": "Measure support recovery while the nested candidate library expands.",
+  "data_generation": {
+    "systems": ["kuramoto", "fhn", "rossler"],
+    "equation_dimensions": {"kuramoto": [1], "fhn": [1, 2], "rossler": [1, 2, 3]},
+    "network": "synthetic_benchmark",
+    "num_nodes": 1000,
+    "num_points": 1000,
+    "dt": 0.01,
+    "conditions": {
+      "clean": {"snr_db": null, "observed_points": 1000},
+      "noise": {"snr_db": 50, "observed_points": 1000},
+      "sparse": {"snr_db": null, "observed_points": 200, "sampling_from": 1000}
+    },
+    "seeds": [0, 1, 2, 3, 4]
+  },
+  "model": {
+    "libraries": {"L1": 50, "L2": 100, "L3": 150},
+    "run_phase1": true,
+    "run_phase2": true,
+    "phase2_support_policy": "fixed_phase1_mask_then_prune"
+  },
+  "evaluation": ["precision", "recall", "f1", "K", "coefficient_sMAPE"],
+  "expected_records": 270,
+  "implementation": {
+    "generator": "../Data_generation/generate_robust.py",
+    "identifier": "../SIGN-phase/trainer.py"
+  }
+}

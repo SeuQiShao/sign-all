@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "baseline_scalability",
+  "paper_reference": ["main:2.4", "main:Fig.4f", "SI:VI.F"],
+  "status": "paper_range",
+  "purpose": "Compare equation-recovery error and wall-clock scaling against Two-Step/TP-SINDy and LaGNA.",
+  "hardware": {"gpu": "NVIDIA A6000", "same_hardware_for_all_methods": true},
+  "methods": ["SIGN"],
+  "external_comparison_methods": ["Two-Step/TP-SINDy", "LaGNA"],
+  "structural_incompleteness": {
+    "network_sizes": [1000, 100000],
+    "missing_node_fraction": [0.01, 0.05, 0.10, 0.15, 0.20],
+    "missing_edge_fraction": [0.10, 0.20, 0.30, 0.40]
+  },
+  "scalability": {"system": "hr", "network": "small_world", "node_counts": [10, 100, 1000, 10000, 100000], "num_points": 1000, "dt": 0.01},
+  "evaluation": ["coefficient_SMAPE", "wall_clock_seconds", "peak_memory", "rollout_MSE"],
+  "implementation": {"identifier": "../SIGN-phase/trainer.py", "external_comparison_note": "Only the SIGN path is implemented; comparison methods are external."}
+}
