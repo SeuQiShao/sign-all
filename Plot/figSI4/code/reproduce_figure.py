@@ -1,8 +1,7 @@
-"""Reproduce the ENSO SST main figure or SI figure from compact CSV data.
+"""Reproduce the ENSO SST supplementary figure from shared compact CSV data.
 
-The script is intentionally self-contained. It reads only ../plot_data and
-writes the figure files to ../plot. Copying this code to the matching figSI4
-folder makes the same entry point reproduce the supplementary figure there.
+The script reads the shared Fig. 6 plotting data from ../fig6/plot_data and
+writes the figure files to ../plot.
 
 The source trajectory contains 120 stored states by 71,987 nodes. Stored state
 index 0 is the initial observed/true value and is not plotted; the compact
@@ -25,7 +24,7 @@ import numpy as np
 
 
 FIGURE_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = FIGURE_DIR / "plot_data"
+DATA_DIR = FIGURE_DIR.parent / "fig6" / "plot_data"
 PLOT_DIR = FIGURE_DIR / "plot"
 FIGURE_KIND = FIGURE_DIR.name.lower()
 # The source has 120 states; state 0 is the observed initialization value and
@@ -65,8 +64,8 @@ MAGENTA = "#d96ba6"
 CMAP = LinearSegmentedColormap.from_list("fig5_yellow_blue", ["#fffde4", "#005aa7"], N=256)
 
 
-def add_panel_label(ax, label: str) -> None:
-    ax.text(-0.10, 1.08, label, transform=ax.transAxes, fontsize=8,
+def add_panel_label(ax, label: str, x: float = -0.10) -> None:
+    ax.text(x, 1.08, label, transform=ax.transAxes, fontsize=8,
             fontweight="bold", ha="left", va="bottom", clip_on=False, color="black")
 
 
@@ -126,7 +125,7 @@ def plot_map(ax, split: str, title: str, vmax: float, markers: np.ndarray | None
             ax.text(float(row["longitude"]) + 1.2, float(row["latitude"]) + 0.15,
                     str(int(row["position"])), fontsize=5.5, zorder=6)
     cb = ax.figure.colorbar(image, ax=ax, fraction=0.035, pad=0.012)
-    cb.set_label("sMAPE", fontsize=6, labelpad=1)
+    cb.set_label("MAPE", fontsize=6, labelpad=1)
     cb.ax.tick_params(labelsize=5, length=2)
     cb.set_ticks(np.linspace(0, vmax, 5))
 
@@ -163,7 +162,7 @@ def plot_trajectories(axes, trajectory: np.ndarray) -> None:
 def plot_histogram(ax, nodes: np.ndarray, split: str, xlim: tuple[float, float], ylim: tuple[float, float]) -> dict[str, float]:
     values = nodes[f"mape_{split}_percent"].astype(float)
     if np.any(values <= 0):
-        raise ValueError(f"non-positive sMAPE values cannot be log-normal fitted for {split}")
+        raise ValueError(f"non-positive MAPE values cannot be log-normal fitted for {split}")
     mean, median = float(values.mean()), float(np.median(values))
     log_values = np.log(values)
     log_mu, log_sigma = float(log_values.mean()), float(log_values.std())
@@ -175,16 +174,16 @@ def plot_histogram(ax, nodes: np.ndarray, split: str, xlim: tuple[float, float],
     ax.axvline(median, color="#8f75d2", ls="--", lw=0.65)
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
-    ax.set_xlabel("Node sMAPE", labelpad=1)
+    ax.set_xlabel("Node MAPE", labelpad=1)
     ax.set_ylabel("Node Count Density", labelpad=1)
-    ax.set_title("Histogram of Node sMAPE", color=BLUE, pad=3)
+    ax.set_title("Histogram of Node MAPE", color=BLUE, pad=3)
     ax.tick_params(direction="in", top=True, right=True, length=2.5)
     ax.text(0.56, 0.93, f"Mean = {mean:.2f}%\nMedian = {median:.2f}%\nLog-Normal Fit\nμ={log_mu:.2f}, σ={log_sigma:.2f}",
             transform=ax.transAxes, fontsize=5.1, va="top", color="#333333")
     return {"mean": mean, "median": median, "log_mu": log_mu, "log_sigma": log_sigma}
 
 
-def plot_density(ax, split: str, xlim: tuple[float, float], ylim: tuple[float, float], equal_data: bool = True) -> float:
+def plot_density(ax, split: str, xlim: tuple[float, float], ylim: tuple[float, float]) -> float:
     matrix, bounds = load_density(split)
     true_min, true_max, pred_min, pred_max, r2 = bounds
     image = ax.imshow(matrix, extent=[true_min, true_max, pred_min, pred_max], origin="lower",
@@ -196,15 +195,16 @@ def plot_density(ax, split: str, xlim: tuple[float, float], ylim: tuple[float, f
     ax.set_xlabel("True TEMP.(\N{DEGREE SIGN}C)", labelpad=1)
     ax.set_ylabel("Inferred TEMP.(\N{DEGREE SIGN}C)", labelpad=1)
     ax.set_title("Inferred Vs.True SST", color=BLUE, pad=3)
-    if equal_data:
-        ax.set_aspect("equal", adjustable="box")
-    else:
-        ax.set_aspect("auto")
-        ax.set_box_aspect(1)
+    # A common box aspect keeps all SI4 quantitative panels comparable in size.
+    ax.set_aspect("auto")
     ax.tick_params(direction="in", top=True, right=True, length=2.5)
-    cb = ax.figure.colorbar(image, ax=ax, fraction=0.045, pad=0.025)
+    # Place the colorbar in the inter-panel gutter so it does not shrink c/f.
+    cax = ax.inset_axes([1.055, 0.0, 0.045, 1.0], transform=ax.transAxes)
+    cb = ax.figure.colorbar(image, cax=cax)
     cb.set_label("Density", fontsize=5.5, labelpad=1)
     cb.ax.tick_params(labelsize=5, length=2)
+    ax.text(0.04, 0.94, f"R² = {r2:.2f}", transform=ax.transAxes,
+            fontsize=5.4, va="top", ha="left", color="#333333")
     return r2
 
 
@@ -215,13 +215,15 @@ def plot_variability(ax, nodes: np.ndarray, split: str, xlim: tuple[float, float
     fitted = slope * x + intercept
     r2 = float(1.0 - np.sum((y - fitted) ** 2) / np.sum((y - y.mean()) ** 2))
     ax.scatter(x, y, s=4, color=POINT_COLOR, alpha=0.22, linewidths=0,
-               rasterized=True, label="error point")
+               rasterized=True, label="Error points")
     xx = np.linspace(x.min(), x.max(), 200)
-    ax.plot(xx, slope * xx + intercept, color="#5136a3", lw=0.75, label="_nolegend_")
+    sign = "+" if intercept >= 0 else "−"
+    fit_label = f"Linear fit: y = {slope:.2f}x {sign} {abs(intercept):.2f}"
+    ax.plot(xx, slope * xx + intercept, color="#5136a3", lw=0.75, label=fit_label)
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
     ax.set_xlabel("SST Std Per Node", labelpad=1)
-    ax.set_ylabel("sMAPE", labelpad=1)
+    ax.set_ylabel("MAPE", labelpad=1)
     ax.set_title("Node Error Vs. Variability", color=BLUE, pad=3)
     ax.tick_params(direction="in", top=True, right=True, length=2.5)
     ax.legend(loc="upper left", fontsize=5, handlelength=2.2, borderaxespad=0)
@@ -236,8 +238,8 @@ def plot_time_error(ax, forecast: np.ndarray) -> None:
     ax.set_xlim(0, 120)
     ax.set_ylim(0.8, 7.0)
     ax.set_xlabel("Forecast Month", labelpad=1)
-    ax.set_ylabel("Mean sMAPE", labelpad=1)
-    ax.set_title("Forecast Error Over Time", color=BLUE, pad=3)
+    ax.set_ylabel("Mean MAPE", labelpad=1)
+    ax.set_title("Rollout Error Over Time", color=BLUE, pad=3)
     ax.tick_params(direction="in", top=True, right=True, length=2.5)
 
 
@@ -255,10 +257,10 @@ def build_fig6(nodes: np.ndarray, trajectories: np.ndarray, forecast: np.ndarray
     gs = GridSpec(3, 12, figure=fig, height_ratios=[1.05, 1.05, 1.0], hspace=0.52, wspace=0.85)
     markers = trajectories[trajectories["month_index"] == 1]
     ax = fig.add_subplot(gs[0, :7])
-    plot_map(ax, "train", "Inferred sMAPE in Eastern Pacific SST on Training Data", 8, markers)
+    plot_map(ax, "train", "Inferred MAPE in Eastern Pacific SST on Training Data", 8, markers)
     add_panel_label(ax, "a")
     ax = fig.add_subplot(gs[1, :7])
-    plot_map(ax, "test", "Inferred sMAPE in Eastern Pacific SST on Test Data", 8, markers)
+    plot_map(ax, "test", "Inferred MAPE in Eastern Pacific SST on Test Data", 8, markers)
     add_panel_label(ax, "b")
     sub = GridSpecFromSubplotSpec(4, 1, subplot_spec=gs[:2, 7:], hspace=0.32)
     trajectory_axes = [fig.add_subplot(sub[i, 0]) for i in range(4)]
@@ -284,29 +286,39 @@ def build_fig6(nodes: np.ndarray, trajectories: np.ndarray, forecast: np.ndarray
 
 def build_si(nodes: np.ndarray) -> None:
     fig = plt.figure(figsize=(8.27, 6.70), facecolor="white")
-    gs = GridSpec(3, 3, figure=fig, height_ratios=[1.2, 1, 1], hspace=0.70, wspace=0.65)
+    gs = GridSpec(3, 3, figure=fig, height_ratios=[1.12, 0.88, 0.88], hspace=0.40, wspace=0.43)
     ax = fig.add_subplot(gs[0, :])
-    plot_map(ax, "all", "Inferred sMAPE in Eastern Pacific SST on All Data", 5)
-    add_panel_label(ax, "a")
-    ax = fig.add_subplot(gs[1, 0])
-    plot_histogram(ax, nodes, "train", (0.8, 4.5), (0, 1.0))
-    add_panel_label(ax, "b")
-    ax = fig.add_subplot(gs[1, 1])
-    plot_density(ax, "train", (24, 29), (24, 29))
-    add_panel_label(ax, "c")
-    ax = fig.add_subplot(gs[1, 2])
-    plot_variability(ax, nodes, "train", (0.55, 1.4), (0.5, 4.5))
-    add_panel_label(ax, "d")
-    ax = fig.add_subplot(gs[2, 0])
-    plot_histogram(ax, nodes, "test", (1.0, 8.5), (0, 0.4))
-    add_panel_label(ax, "e")
-    ax = fig.add_subplot(gs[2, 1])
-    plot_density(ax, "test", (22, 29), (25, 27.5), equal_data=False)
-    add_panel_label(ax, "f")
-    ax = fig.add_subplot(gs[2, 2])
-    plot_variability(ax, nodes, "test", (0.5, 2.0), (0.5, 9.0))
-    add_panel_label(ax, "g")
+    plot_map(ax, "all", "Inferred MAPE in Eastern Pacific SST on All Data", 5)
+    # The wide map panel uses a closer relative offset so its label aligns with b/e.
+    add_panel_label(ax, "a", x=-0.027)
+    panel_specs = (("b", 1, 0), ("c", 1, 1), ("d", 1, 2),
+                   ("e", 2, 0), ("f", 2, 1), ("g", 2, 2))
+    panels = {label: fig.add_subplot(gs[row, col]) for label, row, col in panel_specs}
+    for panel in panels.values():
+        panel.set_box_aspect(0.72)
+
+    # Keep the updated training-error bars and fitted curve fully visible.
+    plot_histogram(panels["b"], nodes, "train", (0.8, 4.5), (0, 1.4))
+    plot_density(panels["c"], "train", (24, 29), (24, 29))
+    plot_variability(panels["d"], nodes, "train", (0.55, 1.4), (0.5, 4.5))
+    # Keep the updated test-error bars and fitted curve fully visible.
+    plot_histogram(panels["e"], nodes, "test", (1.0, 8.5), (0, 0.7))
+    plot_density(panels["f"], "test", (22, 29), (25, 27.5))
+    plot_variability(panels["g"], nodes, "test", (0.5, 2.0), (0.5, 9.0))
+    for label, panel in panels.items():
+        add_panel_label(panel, label)
     fig.subplots_adjust(left=0.065, right=0.965, bottom=0.075, top=0.94)
+    # Shift the c/f column left by half of c's 1 °C x-axis interval (24–25 °C).
+    c_position = panels["c"].get_position()
+    half_tick_shift = c_position.width / 10
+    for label in ("c", "f"):
+        position = panels[label].get_position()
+        panels[label].set_position([
+            position.x0 - half_tick_shift,
+            position.y0,
+            position.width,
+            position.height,
+        ])
     save_figure(fig, "figSI4")
     plt.close(fig)
 
@@ -323,3 +335,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

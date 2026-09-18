@@ -333,7 +333,7 @@ def plot_time_error(ax, forecast: np.ndarray, metric_label: str = "sMAPE") -> No
     ax.set_ylim(0.8, 7.0)
     ax.set_xlabel("Forecast Month", labelpad=1)
     ax.set_ylabel(f"Mean {metric_label}", labelpad=1)
-    ax.set_title("Forecast Error Over Time", color=BLUE, pad=3)
+    ax.set_title("Rollout Error Over Time", color=BLUE, pad=3)
     ax.tick_params(direction="in", top=True, right=True, length=2.5)
 
 
@@ -419,7 +419,8 @@ def build_fig6(nodes: np.ndarray, trajectories: np.ndarray, forecast: np.ndarray
     # c-panel label; nudge c right to preserve a clear gap.
     c_label = add_panel_label(trajectory_axes[0], "c", x=-0.05)
     ax = fig.add_subplot(gs[2, 0:3])
-    plot_histogram(ax, nodes, "all", (0.9, 5.5), (0, 0.9), metric_label="MAPE")
+    # Preserve headroom above the updated all-node distribution and fitted curve.
+    plot_histogram(ax, nodes, "all", (0.9, 5.5), (0, 1.5), metric_label="MAPE")
     ax.set_box_aspect(1)
     d_ax = ax
     # The d-panel tag is set slightly farther left so that, after the panel
@@ -538,3 +539,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

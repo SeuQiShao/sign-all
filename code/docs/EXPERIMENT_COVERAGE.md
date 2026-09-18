@@ -30,7 +30,7 @@ their own data interfaces.
 | Fig. 5; SI VII.A-B | FHN 22,198-node bn-human prediction | `configs/fhn_prediction_robustness.json`, `prepare_fhn_prediction.py` | Requires external partition input |
 | Fig. 5; SI VII.A-B | MTGNN/ASTGCN/MSTGCN/STSGCN/STGCN comparison | Protocol metadata in `fhn_prediction_robustness.json` | External baselines sourced from the unified GitHub STG4Traffic repository; implementations omitted |
 | SI VII.B.4; Tables S16-S17 | SIS/MM recursive SIGN prediction | `SIGN-phase/trainer.py`, `Sign-Robust/configs/prediction_temporal_baselines.json` | Protocol recorded; the retired dedicated equation-prediction runner is not distributed |
-| Fig. 6; SI VII.C; Table S18 | SST 96/24 SIGN prediction and Fourier terms | `SIGN_sst_pred/trainer.py`, `SIGN_sst_pred/SIGN_data/enso_71987/raw/data1.pt` | Runnable after configuring its local PyG data root; comparison methods omitted |
+| Fig. 6; SI VII.C; Tables S18–S19 | SST 96/24 SIGN prediction, Fourier terms, and baseline comparison | `SIGN_sst_pred/trainer.py`, `SIGN_sst_pred/SIGN_data/enso_71987/raw/data1.pt` | Runnable after configuring its local PyG data root; comparison methods omitted |
 
 ## Data policy
 
@@ -43,3 +43,4 @@ partition input are not redistributed.
 
 The distributed package provides import, basis, catalog, configuration, and
 small-case execution checks.
+

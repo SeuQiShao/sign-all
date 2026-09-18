@@ -333,7 +333,7 @@ def draw_dbscan_consensus(parent: plt.Axes) -> None:
         [0.80, 0.82], [0.93, 0.70], [0.17, 0.42], [0.19, 0.22],
         [0.30, 0.16], [0.49, 0.16], [0.68, 0.16], [0.96, 0.12],
     ])
-    # Remove the grey illustrative node that overlaps the direct "core cluster"
+    # Remove the grey illustrative node that overlaps the direct "non-noise core"
     # label; retain every green node inside the DBSCAN core cluster.
     grey_points = grey_points[~np.all(grey_points == [0.49, 0.16], axis=1)]
     ax.scatter(grey_points[:, 0], grey_points[:, 1], s=8, color=GREY, zorder=2)
@@ -368,7 +368,7 @@ def draw_dbscan_consensus(parent: plt.Axes) -> None:
     ax.text(
         0.46,
         0.18,
-        "core cluster",
+        "non-noise core",
         transform=ax.transAxes,
         ha="center",
         va="center",
@@ -498,7 +498,7 @@ def make_panel() -> plt.Figure:
     step_titles = [
         (0.050, "Sample nodes"),
         (0.230, "Local sparse coefficients"),
-        (0.515, "DBSCAN consensus"),
+        (0.515, "DBSCAN filtering"),
         (0.765, "Mask from DBSCAN core nodes"),
     ]
     for x, title in step_titles:
@@ -551,3 +551,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -1,6 +1,6 @@
 # SIGN SST prediction
 
-`SIGN_sst_pred` is the experiment-specific implementation for the ENSO/SST prediction study (Fig. 6, SI VII.C, and Table S18). It fits SIGN on the first 96 stored monthly states, augments the state library with Fourier terms, and evaluates the remaining 24-state forecast interval. This package replaces the retired `SIGN-prediction` SST runner; it uses its own PyTorch Geometric data layout rather than the retired NPZ command-line interface.
+`SIGN_sst_pred` is the experiment-specific implementation for the ENSO/SST prediction study (Fig. 6, SI VII.C, and Tables S18–S19). It fits SIGN on the first 96 stored monthly states, augments the state library with Fourier terms, and evaluates the remaining 24-state forecast interval. This package replaces the retired `SIGN-prediction` SST runner; it uses its own PyTorch Geometric data layout rather than the retired NPZ command-line interface.
 
 ## Position in the repository
 
@@ -33,3 +33,4 @@ The defaults use 500 epochs, 40 Fourier basis terms, and the available CUDA devi
 ## Method and scope
 
 `utils_file/primary_mask.py` constructs the sparse support masks; `model/` contains the basis classifier and GSI decoder. Dominant seasonal components are selected from the 96-state training window and incorporated into the model's time basis. SST comparison baselines are not redistributed. For the source-data licence and citation requirements, see [`../DATA_LICENSES.md`](../DATA_LICENSES.md) and the provenance record above.
+

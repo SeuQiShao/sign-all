@@ -33,7 +33,7 @@ def column_scale_matrix(x_np, enabled=True):
 
 
 def fit_ard_aic(x_data, x_dot, args, apply_coef_threshold=True):
-    """Fit Lasso/ARD with and without intercept, then select by AIC."""
+    """Fit the configured Lasso/ARD candidates and select by AIC."""
     x_np = x_data.detach().cpu().numpy().astype(np.float64)
     y_np = x_dot.detach().cpu().numpy().reshape(-1)
     x_fit, x_scale = column_scale_matrix(x_np, args.e1_ard_column_scale)
@@ -49,16 +49,24 @@ def fit_ard_aic(x_data, x_dot, args, apply_coef_threshold=True):
         alpha=args.e1_lasso_alpha,
         max_iter=args.e1_lasso_max_iter,
     )
-    models = [
-        ("lasso_with_intercept", Lasso(**lasso_common, fit_intercept=True)),
-        ("ard_with_intercept", ARDRegression(**ard_common, fit_intercept=True)),
-        ("lasso_without_intercept", Lasso(**lasso_common, fit_intercept=False)),
-        ("ard_without_intercept", ARDRegression(**ard_common, fit_intercept=False)),
-    ]
+    models = [("lasso_with_intercept", Lasso(**lasso_common, fit_intercept=True))]
+    only_lasso = bool(getattr(args, "e1_aic_lasso_only", False))
+    if not only_lasso:
+        models.append(("ard_with_intercept", ARDRegression(**ard_common, fit_intercept=True)))
+    only_with_intercept = bool(getattr(args, "e1_aic_with_intercept_only", False))
+    if not only_with_intercept:
+        models.extend([
+            ("lasso_without_intercept", Lasso(**lasso_common, fit_intercept=False)),
+            ("ard_without_intercept", ARDRegression(**ard_common, fit_intercept=False)),
+        ])
     for _, model in models:
         model.fit(x_fit, y_np)
     aic = [regression_aic(model, x_fit, y_np) for _, model in models]
-    if args.e1_intercept_mode == "with":
+    if only_lasso:
+        model_index = 0
+    elif only_with_intercept:
+        model_index = min((0, 1), key=lambda i: aic[i])
+    elif args.e1_intercept_mode == "with":
         eligible = [0, 1]
         model_index = min(eligible, key=lambda i: aic[i])
     elif args.e1_intercept_mode == "without":
@@ -85,18 +93,22 @@ def fit_ard_aic(x_data, x_dot, args, apply_coef_threshold=True):
     return coef, intercept, {
         "model": model.__class__.__name__,
         "model_name": model_name,
-        "model_selection": "lasso_ard_with_without_intercept_aic",
+        "model_selection": (
+            "lasso_with_intercept_only" if only_lasso
+            else "lasso_ard_with_intercept_aic" if only_with_intercept
+            else "lasso_ard_with_without_intercept_aic"
+        ),
         "fit_intercept": bool(getattr(model, "fit_intercept", False)),
         "aic_lasso_with_intercept": float(aic[0]),
-        "aic_ard_with_intercept": float(aic[1]),
-        "aic_lasso_without_intercept": float(aic[2]),
-        "aic_ard_without_intercept": float(aic[3]),
+        "aic_ard_with_intercept": None if only_lasso else float(aic[1]),
+        "aic_lasso_without_intercept": None if only_with_intercept else float(aic[2]),
+        "aic_ard_without_intercept": None if only_with_intercept else float(aic[3]),
         "selected_aic": float(aic[model_index]),
         "intercept_mode": args.e1_intercept_mode,
         "intercept_aic_margin": float(getattr(args, "e1_intercept_aic_margin", 0.0)),
-        "best_with_intercept_aic": float(min(aic[0], aic[1])),
-        "best_without_intercept_aic": float(min(aic[2], aic[3])),
-        "aic_without_minus_with": float(min(aic[2], aic[3]) - min(aic[0], aic[1])),
+        "best_with_intercept_aic": float(aic[0]) if only_lasso else float(min(aic[0], aic[1])),
+        "best_without_intercept_aic": None if only_with_intercept else float(min(aic[2], aic[3])),
+        "aic_without_minus_with": None if only_with_intercept else float(min(aic[2], aic[3]) - min(aic[0], aic[1])),
         "coef_threshold": float(args.e1_coef_threshold),
         "apply_coef_threshold": bool(apply_coef_threshold),
         "lasso_alpha": float(args.e1_lasso_alpha),
@@ -105,6 +117,7 @@ def fit_ard_aic(x_data, x_dot, args, apply_coef_threshold=True):
         "ard_threshold_lambda": float(args.e1_ard_threshold_lambda),
         "column_scale": bool(args.e1_ard_column_scale),
         "column_scale_mode": "std_without_centering",
+        "aic_candidates": [name for name, _ in models],
     }
 
 
@@ -663,3 +676,4 @@ def generate_primary_mask(args, batchs, rep=10):
         derivative_info,
     )
     return f_mask.to(device), c_mask.to(device)
+

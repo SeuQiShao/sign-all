@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+.mplconfig/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+*.log
+*.tmp
+*.swp
+
+# Generated review and audit material is kept outside the release packages.
+_audit/
+**/panel_outputs/
+**/panel_*_review/
+**/numeric_audit.csv
+**/numeric_audit.json
+**/si_audit.json
+**/SI_Robustness_QA.md
+

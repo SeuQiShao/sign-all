@@ -267,7 +267,7 @@ def draw_dynamics_boxes(ax: plt.Axes) -> None:
             ha="center", va="center", fontsize=6.2, fontfamily="Arial",
             fontweight="normal", color=INK)
     equations = [
-        r"$\dot{x}_i=-y_i-z_i+\mathregular{∑}_{j} A_{ij}(x_j-x_i)$",
+        r"$\dot{x}_i=-y_i-z_i+\epsilon\mathregular{∑}_{j} A_{ij}(x_j-x_i)$",
         r"$\dot{y}_i=x_i+a y_i$",
         r"$\dot{z}_i=b+z_i(x_i-c)$",
     ]
@@ -338,3 +338,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

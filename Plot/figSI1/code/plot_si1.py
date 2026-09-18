@@ -178,8 +178,12 @@ def plot_coupling(ax: plt.Axes, frame: pd.DataFrame, *, xlim: tuple[float, float
     else:
         right.set_yticklabels([])
     right.tick_params(direction="out", pad=0.8, labelsize=5.0, width=0.4, length=1.8)
-    right.spines["right"].set_color("#B8A9D5")
-    right.spines["right"].set_linewidth(0.45)
+    # ``axes.spines.right`` is disabled globally for the main plots.  A
+    # twinned axis inherits that setting, so explicitly re-enable the right
+    # spine here for both Coupling panels.
+    right.spines["right"].set_visible(True)
+    right.spines["right"].set_color(mpl.rcParams["axes.edgecolor"])
+    right.spines["right"].set_linewidth(mpl.rcParams["axes.linewidth"])
     right.spines["top"].set_visible(False)
 
 
@@ -209,7 +213,7 @@ def build_s1() -> dict:
             show_y = col == 0
             if title == "Coupling":
                 plot_coupling(ax, frame, xlim=xlim, ylim=ylim, xlabel=xlabel if show_x else None,
-                              ylabel="sMAPE" if show_y else None, show_right_label=row == 1)
+                              ylabel="sMAPE" if show_y else None, show_right_label=True)
             else:
                 plot_dynamics(ax, frame, xlim=xlim, ylim=ylim, xlabel=xlabel if show_x else None,
                               ylabel="sMAPE" if show_y else None)
@@ -519,3 +523,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

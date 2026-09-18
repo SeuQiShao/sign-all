@@ -697,7 +697,7 @@ def generate_season(args, x, t, max_k = 8, norm = False):
     start_t = min(t)
     end_t = max(t)
     n = len(t)
-    sample_freq = (end_t - start_t + 1)/n
+    sample_freq = (end_t - start_t + 0.1)/n
     fft_x = np.fft.rfft(x)
     fft_x_abs = np.abs(fft_x).mean(0)
     freq = np.fft.fftfreq(n, sample_freq)
@@ -885,3 +885,4 @@ def functions(args, poly_p, poly_n, f_mask, c_mask, activate=False):
 
 if __name__ == '__main__':
     print('Hello World')
+

@@ -19,8 +19,8 @@ the training period and the last 24 plotted months are the test period.
 spatial/error summaries, while large point clouds are represented by complete
 180 × 180 density matrices. No observations were sampled or dropped.
 Panel f reads the ordinary least-squares regression over all 71,987 nodes from
-`../plot_data/panel_f_regression.csv`: `y = 2.311112248631588x -
-0.188568155717975`, `R² = 0.249703763834046`.
+`../plot_data/panel_f_regression.csv`: `y = 2.09238119754211x +
+0.00593405363889797`, `R² = 0.412513396104662`.
 
 The SST source is identified in the manuscript as the SSTG dataset [45] (Cao
 et al., *Earth System Science Data* 13, 2111–2134, 2021; SI [S25]).
@@ -28,3 +28,7 @@ et al., *Earth System Science Data* 13, 2111–2134, 2021; SI [S25]).
 The main Fig. 6 export is 180 mm wide on a 5.00-inch-high canvas. Its d/e/f/g
 panels use equal square plotting areas, and all visible error labels in those
 panels use MAPE.
+
+Supplementary Fig. SI4 reads the same `plot_data` directory so that the main
+and supplementary SST figures cannot diverge through duplicated inputs.
+

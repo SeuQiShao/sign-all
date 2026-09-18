@@ -124,12 +124,13 @@ if __name__ == "__main__":
         print('Data shape:', test_batchs.x.shape)
 
     if args.t_basis:
-        args.T_max_k = utils.generate_season(args, train_bactchs.x[:,:,0].cpu().numpy(), train_bactchs.t.cpu().numpy(), max_k=args.k_num)
+        args.T_max_k = utils.generate_season(args, train_bactchs.x[:,:,0].cpu().numpy(), train_bactchs.t[:96].cpu().numpy(), max_k=args.k_num)
         print(args.T_max_k)
     else:
         args.T_max_k = 0
     args.k = 0
     encoder, decoder, optimizer, scheduler = model_loader.load_model(args)
     train()
+
 
 

@@ -154,7 +154,7 @@ def legend_dynamics(ax: plt.Axes, *, ncol: int = 1, loc: str = "upper right") ->
         Line2D(
             [0], [0], color=DYN_COLORS[d], lw=1.15, linestyle=DYN_STYLES[d],
             marker=DYN_MARKERS[d], markersize=2.7, markerfacecolor="white",
-            markeredgewidth=0.75, label=d,
+            markeredgewidth=0.75, label="MM" if d == "Gene" else d,
         )
         for d in DYNAMICS
     ]
@@ -445,3 +445,4 @@ if __name__ == "__main__":
     print(f"Generated Fig. 4 main and six standalone panels under {OUT}")
     for item in result:
         print(item["panel"], item["title"], item["rows"])
+
