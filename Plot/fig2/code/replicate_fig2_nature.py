@@ -603,7 +603,7 @@ def build_figure() -> tuple[plt.Figure, dict[str, object]]:
 
     # a: Kuramoto dynamics
     error_a = load_csv(PLOT_DATA / "error_kuramoto.csv")
-    _, image_a = heatmap(fig, AXPOS["a_heat"], error_a, 10, ["BA-1k", "BA-100k", "Github", "Caster"], ["", ""])
+    _, image_a = heatmap(fig, AXPOS["a_heat"], error_a, 10, ["BA-1k", "BA-100k", "Github", "Catster"], ["", ""])
     add_colorbar(fig, image_a, AXPOS["a_cbar"], [0, 2, 4, 6, 8, 10])
     term_label(fig, 0.093, 0.907, r"$\sin(x_j-x_i)$", ha="right")
     term_label(fig, 0.108, 0.907, r"$C$", ha="center")
@@ -622,7 +622,7 @@ def build_figure() -> tuple[plt.Figure, dict[str, object]]:
     error_b = load_csv(PLOT_DATA / "error_sis.csv")
     _, image_b = heatmap(
         fig, AXPOS["b_heat"], error_b, 5,
-        ["SW-1k", "SW-100k", "Voles", "Caster"],
+        ["SW-1k", "SW-100k", "Voles", "Catster"],
         [r"$x_i$", r"$x_j$", r"$x_ix_j$"],
     )
     add_colorbar(fig, image_b, AXPOS["b_cbar"], [0, 1, 2, 3, 4, 5])
@@ -641,7 +641,7 @@ def build_figure() -> tuple[plt.Figure, dict[str, object]]:
     error_c = load_csv(PLOT_DATA / "error_gene.csv")
     ax_c_heat, image_c = heatmap(
         fig, AXPOS["c_heat"], error_c, 10,
-        ["SW-1k", "SW-100k", "Bn-Mouse", "Bn-Human"],
+        ["SW-1k", "SW-100k", "mGene", "hGene"],
         [r"$x_i$", r"$\frac{x_j}{x_j+1}$"],
     )
     # Compile the complete fraction with the installed TeX Live engine rather
@@ -825,3 +825,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
