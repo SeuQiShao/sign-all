@@ -674,7 +674,7 @@ def draw_panel_h(fig, rect, tick_row_y):
     ax_bottom.set_ylim(0, 1)
     ax_bottom.axis("off")
     # Keep the grouped differential labels on the F1/Freq. optical baseline,
-    # while retaining a deliberately short pair of boundary bars per group.
+
     label_y = np.clip((tick_row_y - (y0 - bottom_band_h)) / bottom_band_h,
                       0.25, 0.75)
     bar_half_height = 0.16

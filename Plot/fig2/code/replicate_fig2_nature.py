@@ -30,7 +30,6 @@ from matplotlib.ticker import FuncFormatter
 from matplotlib.transforms import ScaledTranslation
 
 
-# ============================ DISPLAY_SELECTIONS ============================
 STYLE = {
     "font": "Times New Roman",
     "title_color": "#1F5E9E",
@@ -134,7 +133,6 @@ AXPOS = {
         0.205,
     ),
 }
-# ========================================================================
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]

@@ -94,7 +94,7 @@ def brain_rgba(path: Path) -> np.ndarray:
     """Convert the downloaded grayscale+alpha outline into a soft blue-gray RGBA image."""
     image = Image.open(path).convert("LA")
     # Converting the PIL image directly preserves the two-dimensional raster;
-    # Image.getdata(band) returns a flattened sequence and would distort it.
+
     pixels = np.asarray(image, dtype=float)
     alpha_array = pixels[..., 1] / 255.0
     rgba = np.empty((*alpha_array.shape, 4), dtype=float)
@@ -112,7 +112,7 @@ def draw_network(ax) -> None:
     ax.imshow(brain_rgba(BRAIN), extent=(-0.02, 1.02, -0.16, 1.16), origin="upper", aspect="auto")
 
     # A sparse whole-brain context network.  NetworkX creates the topology,
-    # while the deliberately wide, lightly jittered lattice keeps nodes spread
+
     # across the full silhouette instead of collapsing into the selected area.
     whole_graph = nx.gnm_random_graph(42, 52, seed=4)
     brain_grid = np.array([

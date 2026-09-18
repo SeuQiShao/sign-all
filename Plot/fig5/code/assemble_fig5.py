@@ -32,7 +32,7 @@ ROW_GAP = 10
 FRAME_LEFT = 31
 FRAME_RIGHT = 56
 FRAME_Y_INSET = 20
-# Fig. 4's shared row-frame language: a #2A2A2A 0.75 pt stroke and a
+
 # 0.012-figure-width corner.  Pixels are used here because this script also
 # produces the raster composite at 600 dpi.
 FRAME_WIDTH = 6.25

@@ -4,10 +4,15 @@ This matrix maps the SIGN-side experiments described in the manuscript and
 Supplementary Information to the public code. The repository does not contain
 third-party baseline implementations.
 
+`SIGN-phase` is the primary algorithm entry point. `SIGN-benchmarks` is a
+compact Fig. 2 reproduction runner built on that implementation; the FHN and
+SST prediction directories are independent, experiment-specific projects with
+their own data interfaces.
+
 | Paper location | Experiment | Public implementation | Status |
 |---|---|---|---|
 | Fig. 1; Methods | SIGN pipeline and two-phase training | `SIGN-phase/trainer.py`, `model/`, `utils_file/` | Runnable |
-| Fig. 2; SI IV | Compact benchmark equation discovery | `SIGN-main/run_fig2.py`, `SIGN-main/trainer.py`, `SIGN-data/synthetic/` | Runnable on smoke data; complete Phase-I/Phase-II path |
+| Fig. 2; SI IV | Compact benchmark equation discovery | `SIGN-benchmarks/run_fig2.py`, `SIGN-benchmarks/trainer.py`, `SIGN-data/synthetic/` | Runnable on smoke data; invokes the canonical `SIGN-phase` Phase-I/Phase-II path |
 | Fig. 2; SI IV | Kuramoto, SIS, MM, FHN, HR, Rössler benchmark generation | `Data_generation/dynamics.py`, `generate_dataset.py` | Runnable; large outputs on demand |
 | Fig. 2; SI III | Synthetic graph construction | `Data_generation/graph.py` | Runnable |
 | Fig. 2; SI III | Empirical graph preparation | `Data_generation/prepare_empirical_networks.py` | Runnable after external download |

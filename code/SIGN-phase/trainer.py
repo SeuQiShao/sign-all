@@ -459,7 +459,7 @@ def train(f_mask=None, c_mask=None, artifact=None):
             break
         current_loss = history[-1]["loss_mse"]
         # e2_loss_min_delta is a relative improvement threshold. The previous
-        # max(..., 1.0) floor made it an absolute 1e-5 threshold for small MSE
+
         # values, preventing best-checkpoint updates throughout Phase-II.
         rel_delta = args.e2_loss_min_delta * max(abs(best_loss), 1e-12) if np.isfinite(best_loss) else 0.0
         loss_improved = (not np.isfinite(best_loss)) or current_loss < best_loss - rel_delta

@@ -129,7 +129,7 @@ def nll_gaussian(preds, target, variance, add_const=False):
     if add_const:
         const = 0.5 * np.log(2 * np.pi * variance)
         neg_log_p += const
-    return neg_log_p.sum() / (preds.size(0) * preds.size(1)) 
+    return neg_log_p.sum() / (preds.size(0) * preds.size(1))
 
 def edge_accuracy(preds, target, binary=True):
     """Based on https://github.com/ethanfetaya/NRI (MIT License)."""
@@ -154,7 +154,6 @@ def kl_latent(args, prob, log_prior, predicted_atoms):
         return kl_categorical_uniform(prob, predicted_atoms, args.edge_types)
 
 
-
 def kl_normal_reverse(prior_mean, prior_std, mean, log_std, downscale_factor=1):
     std = softplus(log_std) * downscale_factor
     d = tdist.Normal(mean, std)
@@ -174,7 +173,7 @@ def softplus(x):
 
 
 def distribute_over_GPUs(args, model, num_GPU=None):
-    ## distribute over GPUs
+
     if args.device.type != "cpu":
         if num_GPU is None:
             num_GPU = torch.cuda.device_count()
@@ -313,7 +312,7 @@ def get_offdiag_indices(num_nodes):
     return offdiag_indices
 
 def batch_fft(args, x):
-    #inputs.shape = B * N * T * F
+
     device = args.device
     out = torch.randn(x.shape[0],x.shape[1],x.shape[2],x.shape[3]*2).to(device)
     for i in range(x.shape[0]):
@@ -322,17 +321,15 @@ def batch_fft(args, x):
             temp = torch.fft.fft(x[i,j], dim = 0)
             temp = torch.stack((temp.real,temp.imag),2)
             temp = temp.reshape(x.shape[2], x.shape[3]*2)
-            out[i,j,:,:] = temp 
+            out[i,j,:,:] = temp
     return out
 
 
 def batch_rotation(args, input, theta):
     # input: B * N * T * F
     device = args.device
-    # x = input[:,:,:,0]
-    # y = input[:,:,:,1]
-    # v_x = input[:,:,:,2]
-    # v_y = input[:,:,:,2]
+
+
     out = torch.randn(input.shape).to(device)
     x = input[:,:,:,[0,1]]
     v = input[:,:,:,[2,3]]
@@ -343,7 +340,7 @@ def batch_rotation(args, input, theta):
     out[:,:,:,[0,1]] = new_x
     out[:,:,:,[2,3]] = new_v
     return out
-    
+
 def invariant_kl(P,Q, ep = 1e-16):
     #input B * G * 2
     #KL: SUM(P*log(P/Q))
@@ -447,14 +444,8 @@ def MAPE(output, target):
     return mape.mean()
 
 def calculate_r2(pred, target):
-    """
-    计算R²指标
-    Args:
-        pred: 预测结果 [num_nodes, time_steps, dims]
-        target: 真实结果 [num_nodes, time_steps, dims]
-    Returns:
-        r2_score: R² 分数
-    """
+
+
     pred = pred.detach().cpu().numpy().reshape(-1, pred.shape[-1])
     target = target.detach().cpu().numpy().reshape(-1, target.shape[-1])
     r2 = r2_score(target, pred, multioutput='uniform_average')
@@ -560,34 +551,34 @@ def partition_graph_pyg(edge_index, num_nodes, num_parts=2):
 
 
 def get_edgeindex_4_edges(file_path):
-    """通用边数据加载器"""
-    # 读取原始数据（自动检测列数）
+
+
     if file_path[-3:] == 'csv':
         raw_df = pd.read_csv(file_path, header=0)
-        edge_part = raw_df.values[:, :2].astype(np.int32)   # 前两列强制转换为整型
-        attr_part = raw_df.values[:, 2:].astype(np.float32)  # 后续列作为属性
+        edge_part = raw_df.values[:, :2].astype(np.int32)
+        attr_part = raw_df.values[:, 2:].astype(np.float32)
         src_nodes = edge_part[:, 0]
         tgt_nodes = edge_part[:, 1]
 
     else:
         raw_df = pd.read_csv(
             file_path,
-            sep=r'\s+',          # 匹配任意空白分隔符
-            comment='%',         # 跳过注释行
+            sep=r'\s+',
+            comment='%',
             header=None,
             engine='c',
-            dtype=np.float32     # 统一先读为float32节省内存
+            dtype=np.float32
         )
-    
-        # 列数验证
+
+
         if len(raw_df.columns) < 2:
             raise ValueError("文件至少需要包含2列数据（源节点和目标节点）")
 
-        # 分割数据
-        edge_part = raw_df.iloc[:, :2].astype(np.int32)   # 前两列强制转换为整型
-        attr_part = raw_df.iloc[:, 2:].astype(np.float32)  # 后续列作为属性
-    
-        # 验证节点ID合法性
+
+        edge_part = raw_df.iloc[:, :2].astype(np.int32)
+        attr_part = raw_df.iloc[:, 2:].astype(np.float32)
+
+
         for col in [0, 1]:
             if np.any(edge_part[col] < 0):
                 raise ValueError(f"第{col+1}列包含负数节点ID")
@@ -595,92 +586,81 @@ def get_edgeindex_4_edges(file_path):
         src_nodes = edge_part[0].to_numpy()
         tgt_nodes = edge_part[1].to_numpy()
 
-    # 删除自环
+
     non_self_loops = src_nodes != tgt_nodes
     src_nodes = src_nodes[non_self_loops]
     tgt_nodes = tgt_nodes[non_self_loops]
 
-    # 合并所有节点并去重（比np.unique快30%）
+
     all_nodes = np.concatenate([src_nodes, tgt_nodes])
     unique_nodes, degrees = np.unique(all_nodes, return_counts=True)
 
-    # 删除孤立点
+
     non_isolated_nodes = unique_nodes[degrees > 0]
     unique_nodes = non_isolated_nodes
 
-    # 创建ID映射字典（使用向量化操作替代循环）
+
     node_ids = torch.arange(len(unique_nodes), dtype=torch.long)
     id_mapping = torch.full((unique_nodes.max()+1,), -1, dtype=torch.long)
     id_mapping[unique_nodes] = node_ids
 
-    # 映射边数据到新ID（约3秒，使用GPU加速）
+
     src_tensor = torch.from_numpy(src_nodes)
     tgt_tensor = torch.from_numpy(tgt_nodes)
 
-    # 使用GPU进行映射（如果可用）
+
     if torch.cuda.is_available():
         id_mapping = id_mapping.cuda()
         src_tensor = src_tensor.cuda()
         tgt_tensor = tgt_tensor.cuda()
 
-    mapped_src = id_mapping[src_tensor]  # 自动并行化
+    mapped_src = id_mapping[src_tensor]
     mapped_tgt = id_mapping[tgt_tensor]
 
-    # 构建edge_index（约0.5秒）
+
     edge_index = torch.stack([mapped_src.cpu(), mapped_tgt.cpu()], dim=0)
 
-    # # 改为无向图
-    # edge_index = torch.cat([edge_index, edge_index.flip(0)], dim=1)
 
-    # 内存优化技巧（如需保留原始ID）
-    del edge_part, attr_part, src_nodes, tgt_nodes, all_nodes  # 及时释放内存
+    del edge_part, attr_part, src_nodes, tgt_nodes, all_nodes
     print('\n Graph load finished! Edgeindex shape:', edge_index.shape, ' Node_num:', len(unique_nodes))
     return edge_index, len(unique_nodes)
 
 def fun_lib(x, poly_p, poly_n, device, activate=False, mask=None, names=False, basis_variant="legacy"):
-    """
-    三维自耦合基函数库，支持1D/2D/3D输入
-    
-    参数:
-        x (torch.Tensor): 输入张量 (N×d, d∈{1,2,3})
-        poly_p (int/list): 正多项式次数，int时为统一次数，list时为各维度次数
-        poly_n (int): 负多项式次数
-        mask (torch.Tensor): 特征掩码张量
-        names (bool): 是否返回特征名称
-    """
+
+
     def _safe_divide(a, b):
         return a / (b + (b == 0)*1e-6)
-    
-    # 维度检测与参数处理
+
+
     dim = x.shape[1] if x is not None else (3 if isinstance(poly_p, list) else 1)
-    dim = min(dim, 3)  # 最大支持3维
+    dim = min(dim, 3)
     poly_p = [poly_p]*dim if isinstance(poly_p, int) else poly_p[:dim]
-    
-    # 生成器与名称列表
+
+
     generators = []
-    name_list = ["1"]  # 常数项
-    
-    # 常数项生成器
+    name_list = ["1"]
+
+
     generators.append(lambda x: torch.ones(x.shape[0], 1, device=device))
 
-    # ================= 多项式项 =================
+
     for d in range(dim):
-        # 单变量多项式
+
         for p in range(1, poly_p[d]):
             generators.append(
                 lambda x, d=d, p=p: torch.pow(x[:, [d]], p)
             )
             name_list.append(f"x{d+1}^{p}")
-    
-    # 交叉项（两两组合）
+
+
     for d1, d2 in combinations(range(dim), 2):
         for p in range(1, min(poly_p[d1], poly_p[d2])):
             generators.append(
                 lambda x, d1=d1, d2=d2, p=p: torch.pow(x[:, [d1]] * x[:, [d2]], p)
             )
             name_list.append(f"(x{d1+1}x{d2+1})^{p}")
-    
-    # 三维交叉项
+
+
     if dim == 3:
         for p in range(1, min(poly_p)):
             generators.append(
@@ -688,7 +668,7 @@ def fun_lib(x, poly_p, poly_n, device, activate=False, mask=None, names=False, b
             )
             name_list.append(f"(x1x2x3)^{p}")
 
-    # ================= v3 self exponential terms =================
+
     # The v3 library introduces a self/state exponential pair for every
     # state dimension.  Clamp the exponent before evaluation so the new
     # candidate family cannot overflow during noisy Phase-I fitting.
@@ -703,67 +683,44 @@ def fun_lib(x, poly_p, poly_n, device, activate=False, mask=None, names=False, b
                 f"x{d+1}*exp(x{d+1})",
             ])
 
-    # ================= 分数项 =================
-    # for d in range(dim):
-    #     for n in range(1, poly_n+1):
-    #         generators.append(
+
     #             lambda x, d=d, n=n: torch.pow(x[:, [d]], -n) * (torch.abs(x[:, [d]]) > 1e-6)
     #         )
-    #         name_list.append(f"x{d+1}^-{n}")
-    
-    # # 交叉分数项
-    # for d1, d2 in combinations(range(dim), 2):
-    #     generators.append(
+
+
     #         lambda x, d1=d1, d2=d2: torch.pow(_safe_divide(x[:,d1], x[:,d2]), -1)
     #     )
-    #     name_list.append(f"(x{d1+1}/x{d2+1})^-1")
 
-    # # ================= 傅里叶项 =================
-    # for d in range(dim):
-    #     generators.extend([
+
     #         lambda x, d=d: torch.sin(x[:, [d]]),
     #         lambda x, d=d: torch.cos(x[:, [d]])
     #     ])
-    #     name_list.extend([f"sin(x{d+1})", f"cos(x{d+1})"])
-    
-    # # 交叉傅里叶项
-    # for d1, d2 in combinations(range(dim), 2):
-    #     generators.extend([
+
+
     #         lambda x, d1=d1, d2=d2: torch.sin(x[:, [d1]] * x[:, [d2]]),
     #         lambda x, d1=d1, d2=d2: torch.cos(x[:, [d1]] * x[:, [d2]])
     #     ])
-    #     name_list.extend([f"sin(x{d1+1}x{d2+1})", f"cos(x{d1+1}x{d2+1})"])
-    
-    # if dim == 3:
-    #     generators.extend([
+
+
     #         lambda x: torch.sin(x.prod(dim=1, keepdim=True)),
     #         lambda x: torch.cos(x.prod(dim=1, keepdim=True))
     #     ])
-    #     name_list.extend(["sin(x1x2x3)", "cos(x1x2x3)"])
 
-    # ================= 指数项 =================
-    # 单变量指数
-    # for d in range(dim):
-    #     generators.append(
+
     #         lambda x, d=d: torch.exp(torch.clamp(x[:, [d]], -10, 10))
     #     )
-    #     name_list.append(f"exp(x{d+1})")
-    
-    # 交叉指数
-    # if dim >= 2:
-    #     generators.append(
+
+
     #         lambda x: torch.exp(torch.clamp(x[:,:2].prod(dim=1, keepdim=True), -5, 5)
     #     ))
-    #     name_list.append("exp(x1x2)")
-    # if dim == 3:
-    #     generators.append(
+
+
     #         lambda x: torch.exp(torch.clamp(x.prod(dim=1, keepdim=True), -5, 5)
     #     ))
-    #     name_list.append("exp(x1x2x3)")
 
-    # ================= 激活函数项 =================
+
     if activate:
-        # 单变量激活
+
         if basis_variant == "trig":
             for d in range(dim):
                 generators.extend([
@@ -785,20 +742,16 @@ def fun_lib(x, poly_p, poly_n, device, activate=False, mask=None, names=False, b
                     lambda x, d=d: x[:, [d]] / (torch.abs(x[:, [d]]) + 1)
                 ])
                 name_list.extend([f"sigmoid(x{d+1})", f"x{d+1}/(x{d+1}+1)"])
-        
-        # # 交叉项激活
-        # if dim >= 2:
-        #     generators.append(
+
+
         #         lambda x: torch.sigmoid(x[:,:2].sum(dim=1, keepdim=True))
         #     )
-        #     name_list.append("sigmoid(x1+x2)")
-        # if dim == 3:
-        #     generators.append(
+
+
         #         lambda x: torch.sigmoid(x.sum(dim=1, keepdim=True))
         #     )
-        #     name_list.append("sigmoid(x1+x2+x3)")
 
-    # ================= 模式选择 =================
+
     if names:
         if mask is not None:
             mask = mask.to(device) if isinstance(mask, torch.Tensor) else torch.tensor(mask, device=device)
@@ -806,11 +759,11 @@ def fun_lib(x, poly_p, poly_n, device, activate=False, mask=None, names=False, b
             return [name_list[i] for i in selected]
         return name_list
 
-    # ================= 张量生成 =================
+
     assert x is not None, "需要输入张量x"
     assert x.shape[1] in [1,2,3], "输入应为1D/2D/3D张量"
-    
-    # 应用掩码
+
+
     if mask is not None:
         mask = mask.to(device)
         assert len(mask) == len(generators), f"掩码长度{len(mask)}不匹配特征数{len(generators)}"
@@ -818,7 +771,7 @@ def fun_lib(x, poly_p, poly_n, device, activate=False, mask=None, names=False, b
     else:
         selected = torch.arange(len(generators), device=device)
 
-    # 动态生成特征项
+
     lib_terms = []
     for idx in selected:
         idx = idx.item()
@@ -828,24 +781,18 @@ def fun_lib(x, poly_p, poly_n, device, activate=False, mask=None, names=False, b
             lib_terms.append(term)
         except Exception as e:
             print(f"[WARN] Failed to generate feature '{name_list[idx]}': {e}")
-    
-    # 拼接结果
+
+
     lib = torch.cat(lib_terms, dim=1) if lib_terms else torch.empty((x.shape[0], 0), device=device)
     return torch.clamp(lib, -1e5, 1e5)
 
 def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None, names=False, basis_variant="legacy"):
-    """
-    动态生成基函数库，支持显存优化和特征名称输出
-    
-    参数:
-        mask (torch.Tensor): 形状为 [F] 的掩码张量，非零元素对应保留的基函数
-        names (bool): True时返回特征名称列表，False时返回特征矩阵
-    """
-    # 预生成所有基函数的名称和生成器
+
+
     generators = []
     name_list = []
-    
-    # 多项式项（含x_i项）
+
+
     for i in range(1, poly_p):
         generators.extend([
             lambda x, y, i=i: torch.pow(y, i),
@@ -860,10 +807,10 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
             #f"x_i^{i}"
         ])
 
-    # 分数项（含安全除法）
+
     def _safe_divide(a, b):
         return a / (b + (b == 0)*1e-6)
-    
+
     for i in range(1, poly_n):
         generators.extend([
             lambda x, y, i=i: torch.pow(y, -i),
@@ -878,7 +825,7 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
             f"(x_j/x_i)^-{i}"
         ])
 
-    # 傅里叶项
+
     generators.extend([
         lambda x, y: torch.sin(y),
         lambda x, y: torch.cos(y),
@@ -900,7 +847,7 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
         "cos(x_j)*x_i"
     ])
 
-    # 指数项
+
     generators.extend([
         lambda x, y: torch.exp(y),
         lambda x, y: torch.exp(y * x),
@@ -914,7 +861,7 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
         "x_i*exp(x_j)"
     ])
 
-    # 激活函数项
+
     if activate:
         if basis_variant == "trig":
             generators.extend([
@@ -1008,7 +955,7 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
                 "x_j*x_i/(x_j+x_i+1)"
             ])
 
-    # 名称模式直接返回
+
     if names:
         if mask is not None:
             mask = mask.to(device) if isinstance(mask, torch.Tensor) else torch.tensor(mask, device=device)
@@ -1016,10 +963,10 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
             return [name_list[i] for i in selected]
         return name_list
 
-    # 张量生成模式
+
     assert x_i is not None and x_j is not None, "需要提供x_i和x_j张量"
-    
-    # 确定需要生成的索引
+
+
     if mask is not None:
         mask = mask.to(device) if isinstance(mask, torch.Tensor) else torch.tensor(mask, device=device)
         assert len(mask) == len(generators), "掩码长度与特征数不匹配"
@@ -1027,7 +974,7 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
     else:
         selected = torch.arange(len(generators), device=device)
 
-    # 动态生成特征项
+
     lib_terms = []
     for idx in selected:
         idx = idx.item()
@@ -1037,15 +984,14 @@ def coupled_fun_lib(x_i, x_j, poly_p, poly_n, device, activate=False, mask=None,
             lib_terms.append(term)
         except Exception as e:
             print(f"[WARN] Failed to generate feature '{name_list[idx]}': {e}")
-    
-    # 拼接结果
+
+
     if lib_terms:
         lib = torch.cat(lib_terms, dim=1).to(device)
         return torch.clamp(lib, -1e5, 1e5)
     return torch.empty((x_i.shape[0], 0), device=device)
 
 
-# 组合表达式生成函数
 def fun_lib_by_names(x, poly_p, poly_n, device, basis_names, activate=False, basis_variant="legacy"):
     """Evaluate self-dynamics terms in the exact order requested by E2 artifacts."""
     all_names = fun_lib(
@@ -1106,32 +1052,32 @@ def coupled_fun_lib_by_names(x_i, x_j, poly_p, poly_n, device, basis_names, acti
 
 
 def functions(poly_p, poly_n, f_mask, c_mask, activate=False):
-    # 获取 fun_lib, coupled_fun_lib 和 hyper_fun_lib 的基函数名称列表
+
     fun_names = fun_lib(torch.empty(0, 3), poly_p, poly_n, device="cpu", activate=activate, names=True)
     coupled_names = coupled_fun_lib(torch.empty(0, 1), torch.empty(0, 1), poly_p, poly_n, device="cpu", activate=activate, names=True)
-        # 合并名称列表
-    combined_names = fun_names + coupled_names 
 
-    # 初始化结果列表
+    combined_names = fun_names + coupled_names
+
+
     expressions = []
     active_coeffs = []
     func_str = ''
 
-    # 遍历 fun_lib 部分
+
     for f, name in zip(f_mask.squeeze().tolist(), fun_names):
         if np.abs(f) > 1e-4:
             expressions.append(f"{f:.4f} * {name}")
             active_coeffs.append(f)
-            func_str = func_str + f"{f:.4f} * {name}" + ' + ' 
+            func_str = func_str + f"{f:.4f} * {name}" + ' + '
 
-    # 遍历 coupled_fun_lib 部分
+
     for c, name in zip(c_mask.squeeze().tolist(), coupled_names):
         if np.abs(c) > 1e-4:
             expressions.append(f"{c:.4f} * {name}")
             active_coeffs.append(c)
-            func_str = func_str + f"{c:.4f} * {name}" + ' + ' 
+            func_str = func_str + f"{c:.4f} * {name}" + ' + '
 
-    # 移除最后的多余的 '+'
+
     func_str = func_str.rstrip(' + ')
 
     return func_str, expressions, active_coeffs

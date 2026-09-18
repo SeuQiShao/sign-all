@@ -22,7 +22,7 @@ def parse_args():
         "--GPU_to_use", type=int, default=None, help="GPU to use for training"
     )
 
-    ############## GSI hyperparameter ##############
+
     parser.add_argument(
         "--poly_p", type=int, default=4, help="Polynomial of Library."
     )
@@ -34,16 +34,14 @@ def parse_args():
     )
 
 
-
     parser.add_argument("--teacher", type=int, default=5, help="add teacher every t.")
 
-    ############## training hyperparameter ##############
 
     parser.add_argument(
         "--epochs", type=int, default=10, help="Number of epochs to train."
     )
     parser.add_argument(
-        "--batch_size", type=int, default=40, help="Number of samples per batch."  # default=32
+        "--batch_size", type=int, default=40, help="Number of samples per batch."
     )
     parser.add_argument("--lam_c", type=float, default=1, help="lambda of w_f, w_c.")
     parser.add_argument("--lam_f", type=float, default=1, help="lambda of w_f, w_c.")
@@ -57,7 +55,7 @@ def parse_args():
         default=20,
         help="After how epochs to decay LR by a factor of gamma.",
     )
-    parser.add_argument("--gamma", type=float, default=0.9, help="LR decay factor.")  
+    parser.add_argument("--gamma", type=float, default=0.9, help="LR decay factor.")
 
     parser.add_argument(
         "--lasso_neighbor_num",
@@ -71,7 +69,7 @@ def parse_args():
         default=50,
         help='lasso_node_num'
     )
-    ############## DataSet ##############
+
     parser.add_argument(
         "--num_workers", type=int, default=0, help="Number of Workers."
     )
@@ -222,9 +220,8 @@ def parse_args():
     parser.add_argument('--e2_abs_loss_min_epochs', type=int, default=8, help='Minimum epochs before the absolute-loss early stop may trigger.')
     parser.add_argument('--e2_max_walltime_sec', type=float, default=2700.0, help='Per-run wall-clock cap in seconds; 0 disables.')
     parser.add_argument('--e2_sparse_warmup_epochs', type=int, default=30, help='Initial Phase-II epochs using MSE plus coefficient sparsity losses.')
-    
 
-    ############## architecture ##############
+
     parser.add_argument(
         "--decoder",
         type=str,
@@ -259,11 +256,11 @@ def parse_args():
         help='use Lasso'
     )
 
-    ########### Different variants for variational distribution q ###############
+
     parser.add_argument(
         "--dont_use_encoder",
         action="store_true",
-        # default=False,
+
         help="If true, replace encoder with distribution to be estimated",
         default=True,
     )
@@ -273,10 +270,7 @@ def parse_args():
         default=0.1,
         help="Learning rate for distribution estimation.",
     )
-   
 
-   
-    ############## loading and saving ##############  
 
     parser.add_argument(
         "--save_folder",
@@ -302,13 +296,12 @@ def parse_args():
         "--load_folder",
         type=str,
         default='',
-        # default="logs/k5_0.817",
+
         help="Where to load pre-trained model if finetuning/evaluating. "
         + "Leave empty to train from scratch",
     )
 
-   
-    ############## almost never change these ##############
+
     parser.add_argument(
         "--no_validate", action="store_true", default=False, help="Do not validate results throughout training."
     )
@@ -357,9 +350,8 @@ def parse_args():
         args.poly_p, args.poly_n, args.activate = (31, 5, True) if args.e1_basis_variant == 'trig_exp_v2' else (30, 5, True)
 
 
-
     args.device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
-    # args.device = torch.device("cpu")
+
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     args.validate = not args.no_validate
     args.use_encoder = not args.dont_use_encoder
@@ -378,7 +370,7 @@ def parse_args():
         if args.GPU_to_use is not None:
             torch.cuda.set_device(args.GPU_to_use)
         torch.cuda.manual_seed(args.seed)
-        args.num_GPU = 1  # torch.cuda.device_count()
+        args.num_GPU = 1
         args.batch_size_multiGPU = args.batch_size * args.num_GPU
     else:
         args.num_GPU = None

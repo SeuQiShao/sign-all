@@ -2,6 +2,13 @@
 
 `SIGN_sst_pred` is the experiment-specific implementation for the ENSO/SST prediction study (Fig. 6, SI VII.C, and Table S18). It fits SIGN on the first 96 stored monthly states, augments the state library with Fourier terms, and evaluates the remaining 24-state forecast interval. This package replaces the retired `SIGN-prediction` SST runner; it uses its own PyTorch Geometric data layout rather than the retired NPZ command-line interface.
 
+## Position in the repository
+
+This is a standalone prediction project, not the primary SIGN algorithm
+entry point. Its layout intentionally follows the SST data record, Fourier
+time basis, and 96/24 prediction protocol. For canonical Phase-I / Phase-II
+discovery workflows, use [`../SIGN-phase/`](../SIGN-phase/README.md).
+
 ## Included data and layout
 
 The supplied source record is `SIGN_data/enso_71987/raw/data1.pt`. It is a PyTorch file containing the PyG data list consumed by `utils_file/data_loader.py`. On the first run, PyTorch Geometric creates `SIGN_data/enso_71987/processed/geometric_data_processed.pt`. Do not commit that generated cache.

@@ -177,7 +177,7 @@ def run_case(
     subprocess.run(phase2, cwd=PHASE_ROOT, check=True)
 
     manifest = {
-        "implementation": "SIGN-main compact two-phase trainer",
+        "implementation": "SIGN-benchmarks compact two-phase runner",
         "algorithm": "Phase-I support discovery followed by Phase-II fixed-support training",
         "source": _relative(source_path),
         "system": system,

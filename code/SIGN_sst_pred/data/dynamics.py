@@ -9,27 +9,12 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 import datetime
 import sys
-sys.path.append("..") 
-sys.path.append(".") 
+sys.path.append("..")
+sys.path.append(".")
 import torchdiffeq._impl as ode
 from model.utils import *
 import torch_geometric
 from torch_geometric.nn import MessagePassing
-
-
-#ode.odeint(model, x0, vt, para, method=self.method) 
-
-# def seed_torch(seed=1029):
-# 	random.seed(seed)
-# 	os.environ['PYTHONHASHSEED'] = str(seed) # 为了禁止hash随机化，使得实验可复现
-# 	np.random.seed(seed)
-# 	torch.manual_seed(seed)
-# 	torch.cuda.manual_seed(seed)
-# 	torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
-# 	torch.backends.cudnn.benchmark = False
-# 	torch.backends.cudnn.deterministic = True
-
-# seed_torch()
 
 
 class HeatDiffusion(MessagePassing):
@@ -57,7 +42,6 @@ class HeatDiffusion(MessagePassing):
         return aggr_out
 
 
-
 class Kuramoto(MessagePassing):
     """
     Kuramoto model:
@@ -67,7 +51,7 @@ class Kuramoto(MessagePassing):
     def __init__(self, edge_index, edge_attr = None, aggr = 'mean'):
         super(Kuramoto, self).__init__(aggr=aggr)
         self.aggr = aggr
-        #self.k = 0.15
+
         self.k = 1
         self.edge_index = edge_index
         if edge_attr is not None:
@@ -109,20 +93,12 @@ class SIS(MessagePassing):
 
         out = self.a * x
         out += self.propagate(edge_index, x=x, edge_attr=self.edge_attr)
-        # out = self.propagate(edge_index, x=x, edge_attr=self.edge_attr)
+
         return out
-    
+
     def message(self, x_i, x_j, edge_attr):
-        #return edge_attr * x_i * x_j * 0.1
+
         return x_j - x_i * x_j
-    
-    # def update(self, aggr_out, x):
-    #     return aggr_out + self.a * x
-
-
-
-
-
 
 
 class GeneDynamics(MessagePassing):
@@ -155,8 +131,7 @@ class GeneDynamics(MessagePassing):
         return self.e * edge_attr * (torch.pow(x_j, self.h)/(1 + torch.pow(x_j, self.h)))
 
     def update(self, aggr_out):
-        return aggr_out 
-
+        return aggr_out
 
 
 class MutualDynamics(MessagePassing):
@@ -195,14 +170,9 @@ class MutualDynamics(MessagePassing):
         return aggr_out + x * (1 - x/self.k) * (x/self.c - 1)
 
 
-
-
-
 if "__main__" == __name__:
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--cuda", type=str, default=None, help="Cuda")
-    
-    # args = parser.parse_args()
+
+
     A = torch.tensor([[0,1,2,3,2,1],[3,2,1,0,3,0]])
     model = HeatDiffusion(A)
     t = torch.linspace(0, 10, 100)

@@ -12,7 +12,7 @@ import torch
 
 NC_ROOT = Path(__file__).resolve().parents[2]
 MODEL_ROOT = NC_ROOT / "SIGN-phase"
-COMPACT_ROOT = NC_ROOT / "SIGN-main"
+BENCHMARK_ROOT = NC_ROOT / "SIGN-benchmarks"
 
 
 def require_files() -> None:
@@ -21,8 +21,8 @@ def require_files() -> None:
         MODEL_ROOT / "model" / "utils.py",
         MODEL_ROOT / "model" / "GSIDecoder.py",
         MODEL_ROOT / "utils_file" / "primary_mask.py",
-        COMPACT_ROOT / "trainer.py",
-        COMPACT_ROOT / "run_fig2.py",
+        BENCHMARK_ROOT / "trainer.py",
+        BENCHMARK_ROOT / "run_fig2.py",
         NC_ROOT / "Data_generation" / "generate_dataset.py",
         NC_ROOT / "SIGN_fhn_pred" / "trainer.py",
         NC_ROOT / "SIGN_sst_pred" / "trainer.py",

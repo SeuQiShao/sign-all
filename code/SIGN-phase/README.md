@@ -1,7 +1,9 @@
-# SIGN phase: canonical E2V3
+# SIGN-phase: primary SIGN algorithm entry point
 
-This folder contains the reference implementation of SIGN E2V3. It preserves
-the original PyTorch-Geometric data interface and module layout:
+This folder is the repository's primary entry point for the SIGN algorithm. It
+contains the canonical E2V3 implementation of Phase-I support discovery and
+Phase-II fixed-support coefficient refinement, while preserving the original
+PyTorch-Geometric data interface and module layout:
 
 - `trainer.py`: Phase-I support discovery and Phase-II fixed-support training;
 - `model/`: encoder, decoder, graph message passing, and dimension-aware basis libraries;
@@ -38,9 +40,11 @@ The trainer consumes a canonical dataset directory containing the PyG
 trainer without changing its algorithm.
 
 The canonical model code does not contain ablation-result files or baseline
-implementations. Use `SIGN-main/` for the compact
-complete Phase-I/Phase-II Fig. 2 implementation,
-`Sign-Robust/` for robustness matrices,
+implementations. Use `SIGN-benchmarks/` for the compact Fig. 2 benchmark
+runner, which calls this implementation with fixed manuscript settings;
+use `Sign-Robust/` for robustness matrices,
 [`../SIGN_fhn_pred/`](../SIGN_fhn_pred/README.md) for the FHN prediction
 experiment, and [`../SIGN_sst_pred/`](../SIGN_sst_pred/README.md) for the
-ENSO/SST experiment.
+ENSO/SST experiment. The two prediction packages are independent projects
+with their own data interfaces and are not alternative primary algorithm
+entry points.

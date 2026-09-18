@@ -2,6 +2,13 @@
 
 `SIGN_fhn_pred` is the experiment-specific implementation used for the FitzHugh--Nagumo (FHN) network-prediction study (Fig. 5 and SI VII.A--B). It learns a sparse governing-equation model on each network partition and evaluates autonomous prediction on held-out partitions. The project replaces the retired `SIGN-prediction` entry point; it is not a drop-in runner for the public NPZ files.
 
+## Position in the repository
+
+This is a standalone prediction project, not the primary SIGN algorithm
+entry point. Its structure intentionally follows the FHN partitioned-network
+protocol and native PyTorch-Geometric input layout. For canonical Phase-I /
+Phase-II discovery workflows, use [`../SIGN-phase/`](../SIGN-phase/README.md).
+
 ## What this package expects
 
 The trainer uses PyTorch Geometric's `InMemoryDataset` layout. Its data root must contain a raw PyTorch file, for example:

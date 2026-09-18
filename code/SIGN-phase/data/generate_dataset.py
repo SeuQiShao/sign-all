@@ -20,12 +20,11 @@ from model.utils import (
     partition_graph_pyg,
     sample_observed_dynamics,
 )
-from mpl_toolkits.mplot3d import Axes3D  # 引入 3D 绘图工具
+from mpl_toolkits.mplot3d import Axes3D
 
 class DatasetGenerator:
     def __init__(self, args):
         self.args = args
-        
 
 
     def generate_timestamp(self, mode='uniform'):
@@ -84,7 +83,7 @@ class DatasetGenerator:
         return edge_index
 
     def initialize_model(self, edge_index):
-        # 根据 model_name 初始化动力学模型
+
         if self.args.model_name == 'HeatDiffusion':
             self.model = HeatDiffusion(edge_index).to(self.args.device)
             self.para = [self.model.k]
@@ -115,7 +114,7 @@ class DatasetGenerator:
             self.para_e = self.model.e
             self.para_v = self.model.v
             self.para = [self.para_a, self.para_b, self.para_c, self.para_e, self.para_v]
-        
+
         elif self.args.model_name == 'HR':
             self.model = HRDynamics(edge_index).to(self.args.device)
             self.para_a = self.model.a
@@ -144,9 +143,9 @@ class DatasetGenerator:
                 self.model.m1,
                 self.model.e,
             ]
-                         
+
         elif self.args.model_name == 'TestModel':
-            #self.model = HyperEdgeDynamics(edge_index, B).to(self.args.device)
+
             pass
         else:
             raise ValueError(f"Model '{self.args.model_name}' is not recognized.")
@@ -171,33 +170,33 @@ class DatasetGenerator:
         timestamps = solutions.t
         num_nodes, num_dims = solution.shape[1], solution.shape[2]
 
-        # 节点选择逻辑（统一处理所有维度情况）
+
         if num_nodes > self.args.plot_node_num:
             selected_nodes = torch.randperm(num_nodes)[:self.args.plot_node_num].tolist()
         else:
             selected_nodes = list(range(num_nodes))
 
-        # 图形布局配置
+
         plot_phase_space = num_dims >= 2
         num_main_plots = num_dims + (1 if plot_phase_space else 0)
         fig = plt.figure(figsize=(5 * num_main_plots, 4)) if num_main_plots > 0 else plt.figure()
         fig.suptitle(f"{self.args.model_name} - Dynamics Visualization", fontsize=12)
 
-        # 子图创建（自动处理3D投影）
+
         axs = []
         if num_main_plots > 0:
-            try:  # 尝试创建常规子图布局
+            try:
                 fig, temp_axs = plt.subplots(1, num_main_plots, figsize=(5*num_main_plots, 4), squeeze=False)
                 axs = temp_axs[0].tolist()
-            except TypeError:  # 处理单子图情况
+            except TypeError:
                 axs = [fig.add_subplot(111)]
 
-            # 3D投影特殊处理
+
             if plot_phase_space and num_dims >= 3:
                 axs[-1].remove()
                 axs[-1] = fig.add_subplot(1, num_main_plots, num_main_plots, projection='3d')
 
-        # 时间序列绘制（统一处理所有维度）
+
         for dim in range(num_dims):
             ax = axs[dim]
             for node in selected_nodes:
@@ -207,11 +206,11 @@ class DatasetGenerator:
             ax.set(xlabel="Time", ylabel=f"X{dim+1}", title=f"X{dim+1} Time Series")
             ax.legend(loc='best')
 
-        # 相空间轨迹绘制（智能维度处理）
+
         if plot_phase_space:
             ax = axs[-1]
             data = {i: solution[:, i].cpu().numpy() for i in selected_nodes}
-            
+
             if num_dims >= 3:
                 for node, traj in data.items():
                     ax.plot(traj[:, 0], traj[:, 1], traj[:, 2],
@@ -224,7 +223,7 @@ class DatasetGenerator:
                 ax.set(xlabel="X1", ylabel="X2", title="Phase Portrait")
 
             ax.legend(loc='best')
-            if num_dims >= 3:  # 优化3D视角
+            if num_dims >= 3:
                 ax.view_init(elev=15, azim=45)
 
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -232,20 +231,20 @@ class DatasetGenerator:
 
     def generate_batch_sample(self):
         data_list = []
-        for _ in tqdm(range(self.args.sample_num)):           
-            # 生成时间戳
+        for _ in tqdm(range(self.args.sample_num)):
+
             timestamps = self.generate_timestamp()
 
-            # 生成图结构和高阶交互张量
+
             edge_index = self.generate_relations()
 
-            # 初值 x0 的维度为 (node_num, init_dim)，并乘以 init_scale 调整大小
+
             x0 = torch.rand((self.node_num, self.args.init_dim), device=self.args.device) * torch.tensor(self.args.init_scale, device=self.args.device)
 
-            # 初始化动力学模型
+
             self.initialize_model(edge_index)
-            
-            # 生成该初值和时间戳对应的时序数据
+
+
             solution = self.generate_single_sample(x0, timestamps)
             solution = self.add_gaussian_noise_torch(solution, self.args.obnoise)
             solution, edge_index = generate_missing_edges(solution, edge_index, self.args.miss_edge_rate)
@@ -254,8 +253,8 @@ class DatasetGenerator:
                     solution, edge_index, self.args.ob_node_rate
                 )
                 self.node_num = len(observed_nodes)
-            
-            # 将数据存储为 PyG Data 格式
+
+
             data = Data(
                 x=solution.permute(1,0,2),
                 edge_index=edge_index,
@@ -264,28 +263,28 @@ class DatasetGenerator:
             )
             data_list.append(data)
 
-        # 保存数据
-        self.suffix = '{}_{}_{}_{}_{}'.format(self.args.model_name, self.node_num, self.args.network, self.args.sample_interval, self.args.num_points)
-        # 创建模型名称的子目录
-        model_name_dir = os.path.join(self.args.save_path, self.suffix, 'raw')
-        os.makedirs(model_name_dir, exist_ok=True)  # 创建目录（如果不存在）
 
-        # 创建可视化图片的保存目录
+        self.suffix = '{}_{}_{}_{}_{}'.format(self.args.model_name, self.node_num, self.args.network, self.args.sample_interval, self.args.num_points)
+
+        model_name_dir = os.path.join(self.args.save_path, self.suffix, 'raw')
+        os.makedirs(model_name_dir, exist_ok=True)
+
+
         visualization_path = os.path.join(self.args.save_path, 'visualizations', self.suffix)
-        os.makedirs(visualization_path, exist_ok=True)  # 创建目录（如果不存在）
+        os.makedirs(visualization_path, exist_ok=True)
 
         # Persist CPU tensors so the generated dataset is portable and PyG's
         # DataLoader can pin memory before the training batch moves to CUDA.
         data_list = [data.cpu() for data in data_list]
         torch.save(data_list, os.path.join(model_name_dir, f'data_{self.args.sample_num}.pt'))
 
-        # 可视化数据并保存图片（最多可视化前五个样本）
-        for i, solution in enumerate(data_list[:10]):  # 仅处理前五个样本
+
+        for i, solution in enumerate(data_list[:10]):
             self.plot_single_sample(solution, variable_names=[f'Node {j}' for j in range(self.node_num)])
             plt.savefig(os.path.join(visualization_path, f'visualization_{i}.png'))
-            plt.close()  # 关闭当前图以释放内存
-        
-        # 生成数据情况
+            plt.close()
+
+
         print('Data Shape:', solution.x.shape)
 
 
@@ -293,20 +292,20 @@ def get_args():
     parser = argparse.ArgumentParser(description="Dataset Generator for Hypergraph Dynamics Model")
     parser.add_argument('--seed', type=int, default=3, help='Random seed for reproducible synthetic data generation')
 
-    # 动态模型参数
+
     parser.add_argument('--sample_interval', type=float, default=0.01, help='Total time for ODE integration')
     parser.add_argument('--num_points', type=int, default=1000, help='Number of time points in the time series')
     parser.add_argument('--init_dim', type=int, default=3, help='Dimension of initial state for each node')
 
-    # 数据生成参数
+
     parser.add_argument('--sample_num', type=int, default=1, help='Number of samples to generate')
     parser.add_argument('--save_path', type=str, default='../artifacts/synthetic_data', help='Path to save the generated data')
 
-    # ODE求解器参数
-    parser.add_argument('--method', type=str, choices=["dopri8", "dopri5", "bosh3", "fehlberg2", "adaptive_heun", "euler", "midpoint", "rk4", "explicit_adams", "implicit_adams", "fixed_adams", "scipy_solver"],
-                        default='rk4') 
 
-    # 图结构参数
+    parser.add_argument('--method', type=str, choices=["dopri8", "dopri5", "bosh3", "fehlberg2", "adaptive_heun", "euler", "midpoint", "rk4", "explicit_adams", "implicit_adams", "fixed_adams", "scipy_solver"],
+                        default='rk4')
+
+
     parser.add_argument('--node_num', type=int, default=1000, help='Number of nodes in the graph')
     parser.add_argument(
         '--network', type=str,
@@ -326,16 +325,16 @@ def get_args():
     parser.add_argument('--sbm_p_in', type=float, default=0.05, help='Within-block probability for SBM smoke tests')
     parser.add_argument('--sbm_p_out', type=float, default=0.05, help='Across-block probability for SBM smoke tests')
 
-    # 时间序列采样模式
+
     parser.add_argument('--timestamp_mode', type=str, choices=['uniform', 'random'], default='uniform', help='Mode for generating timestamps')
 
-    # 绘图
+
     parser.add_argument('--plot_node_num', type=int, default=10, help='Number of nodes to plot.')
 
-    # 设备选择
+
     parser.add_argument('--device', type=str, default='cpu', choices=['cuda', 'cpu'], help='Device to run the model on')
 
-    # 动力学
+
     parser.add_argument('--model_name', type=str, choices= ['HeatDiffusion', 'Kuramoto', 'SIS', 'Gene', 'MM', 'Mutual', 'FHN', 'HR', 'Rossler', 'Chua'], default='HR', help='Name of the model for saving data')
     # SIS: 0.5, Kuramoto: 10, Gene: 1
     parser.add_argument('--init_scale', type=float, default=[0.5], help='Scale factor for initial state values')

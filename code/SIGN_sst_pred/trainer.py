@@ -16,7 +16,6 @@ import copy
 warnings.filterwarnings("ignore")
 
 
-
 def train():
     #stage 1, generate mask
     f_mask, c_mask = primary_mask.generate_primary_mask(args, train_bactchs)
@@ -25,21 +24,21 @@ def train():
     # load separator
     print('Start SIGN Training...')
     if args.load_folder == "":
-        ## load model that had the best validation performance during training
+
         best_loss = np.inf
         best_epoch = 0
-        soft_mask_c = torch.ones_like(c_mask, device=args.device)  # 初始化软掩码
-        soft_mask_f = torch.ones_like(f_mask, device=args.device)  # 初始化软掩码
+        soft_mask_c = torch.ones_like(c_mask, device=args.device)
+        soft_mask_f = torch.ones_like(f_mask, device=args.device)
 
         for epoch in range(args.epochs):
             t_epoch = time.time()
             train_losses = defaultdict(list)
-            
+
             if hasattr(torch.cuda, 'empty_cache'):
                 torch.cuda.empty_cache()
 
             batchs = train_bactchs.to(args.device)
-            # 前向传播与损失计算
+
             losses = forward_pass_and_eval.forward_pass_and_eval(args, decoder, batchs, epoch, c_mask=c_mask * soft_mask_c, f_mask=f_mask * soft_mask_f)
             wf, wc = losses['wf'], losses['wc']
             train_losses = utils.append_losses(train_losses, losses)
@@ -48,8 +47,8 @@ def train():
             logs.append_train_loss(train_losses)
             expression = utils.functions(args, args.poly_p, args.poly_n, losses['wf'],  losses['wc'], activate=args.activate)[0]
             logs.write_to_log_file(expression)
-            mae_loss = np.mean(train_losses["loss_mse"]) 
-            
+            mae_loss = np.mean(train_losses["loss_mse"])
+
             if mae_loss < best_loss:
                 print("Best model so far, saving...")
                 logs.create_log(args, decoder=decoder, optimizer=optimizer)
@@ -66,8 +65,8 @@ def train():
             optimizer.step()
             logs.draw_loss_curves()
             # decay coef:
-            decay_factor = 0.9  # 衰减系数，可根据需要调整
-            # 对于绝对值较小的权重，降低软掩码值
+            decay_factor = 0.9
+
             soft_mask_c[wc.detach().abs() < max(0.015 * wc.detach().abs().max(), 0.005)] *= decay_factor
             soft_mask_f[wf.detach().abs() < max(0.015 * wf.detach().abs().max(), 0.005)] *= decay_factor
 
@@ -104,7 +103,6 @@ def train():
     )
 
 
-
 if __name__ == "__main__":
     mp.set_start_method('spawn')
     args = arg_parser.parse_args()
@@ -116,7 +114,7 @@ if __name__ == "__main__":
     dataset = data_loader.SimulationDynamic(args.root)
 
     All_loader =  DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, pin_memory=True)
-    
+
     for batch_idx, onebatchs in enumerate(All_loader):
         print('Data shape:', onebatchs.x.shape)
     train_bactchs = onebatchs
@@ -134,4 +132,4 @@ if __name__ == "__main__":
     encoder, decoder, optimizer, scheduler = model_loader.load_model(args)
     train()
 
-  
+

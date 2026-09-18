@@ -11,7 +11,7 @@ from trainer import run_case
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-root", default="SIGN-data/synthetic")
-    parser.add_argument("--output", default="SIGN-main/output/fig2")
+    parser.add_argument("--output", default="SIGN-benchmarks/output/fig2")
     parser.add_argument("--epochs", type=int, default=300, help="Phase-II epochs")
     parser.add_argument("--phase2-min-epochs", type=int, default=30)
     parser.add_argument("--phase2-loss-patience", type=int, default=30)

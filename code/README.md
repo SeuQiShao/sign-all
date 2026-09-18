@@ -10,10 +10,10 @@ The standalone figure renderers are in [`../Plot/`](../Plot/README.md).
 
 ```text
 code/
-├── SIGN-main/           Compact, complete two-phase SIGN benchmark path (Fig. 2)
-├── SIGN-phase/          Canonical E2V3 Phase-I/Phase-II implementation
-├── SIGN_fhn_pred/       FHN partitioned-network prediction experiment
-├── SIGN_sst_pred/       ENSO/SST prediction experiment with Fourier time terms
+├── SIGN-phase/          Primary SIGN algorithm entry point and canonical E2V3 implementation
+├── SIGN-benchmarks/     Compact Fig. 2 benchmark runner built on SIGN-phase
+├── SIGN_fhn_pred/       Standalone FHN partitioned-network prediction project
+├── SIGN_sst_pred/       Standalone ENSO/SST prediction project with Fourier time terms
 ├── Sign-Robust/         Configuration registry and robustness-matrix runners
 ├── Data_generation/     Dynamics, graphs, simulation, and data-conversion tools
 ├── SIGN-data/           Bundled synthetic smoke data and FHN/SST examples
@@ -41,7 +41,7 @@ The project uses PyTorch and PyTorch Geometric. If your operating system or
 CUDA version requires a specific PyTorch build, install that compatible build
 first, then install the remaining dependencies.
 
-## Main entry points
+## Choose an entry point
 
 ### Verify the canonical implementation
 
@@ -52,28 +52,31 @@ python SIGN-phase\scripts\verify_package.py
 This performs public import, basis-library, data, and configuration smoke
 checks without starting a full experiment.
 
-### Run the compact Fig. 2 discovery benchmark
-
-```powershell
-python SIGN-main\run_fig2.py `
-  --data-root SIGN-data\synthetic `
-  --output SIGN-main\output\fig2
-```
-
-`SIGN-main` retains the complete two-phase algorithm in the manuscript's
-clean L1 / `trig_exp_v2` setting. Use it as the shortest runnable discovery
-example.
-
-### Run canonical Phase-I / Phase-II discovery
+### Run the primary SIGN algorithm
 
 ```powershell
 python SIGN-phase\trainer.py --help
 ```
 
-The canonical trainer consumes the PyTorch-Geometric dataset format expected
-by `SIGN-phase/utils_file/data_loader.py`. `Data_generation/` creates
-synthetic trajectories, and `Sign-Robust/scripts/run_canonical_npz_case.py`
-converts a generated NPZ case to this canonical input format.
+`SIGN-phase` is the canonical implementation of Phase-I support discovery and
+Phase-II fixed-support coefficient refinement. It is the repository's primary
+algorithm entry point. The trainer consumes the PyTorch-Geometric dataset
+format expected by `SIGN-phase/utils_file/data_loader.py`.
+`Data_generation/` creates synthetic trajectories, and
+`Sign-Robust/scripts/run_canonical_npz_case.py` converts a generated NPZ case
+to this canonical input format.
+
+### Reproduce the compact Fig. 2 benchmark
+
+```powershell
+python SIGN-benchmarks\run_fig2.py `
+  --data-root SIGN-data\synthetic `
+  --output SIGN-benchmarks\output\fig2
+```
+
+`SIGN-benchmarks` is a paper-specific convenience runner, not a second
+algorithm entry point. It delegates Phase-I and Phase-II execution to
+`SIGN-phase` using the clean L1 / `trig_exp_v2` Fig. 2 setting.
 
 ### Run prediction examples
 
@@ -85,7 +88,13 @@ cd ..\SIGN_sst_pred
 python trainer.py --ode_model enso --num-atoms 71987 --dims 1 --time-stamp 120
 ```
 
-These are separate, experiment-specific packages, not the former unified NPZ runner. `SIGN_sst_pred` includes its raw PyG input under `SIGN_data/enso_71987`; `SIGN_fhn_pred` requires a staged PyG partition input. Both packages retain an original machine-specific data-root setting that must be set for the local checkout. Read their package README files before running: [`SIGN_fhn_pred/README.md`](SIGN_fhn_pred/README.md) and [`SIGN_sst_pred/README.md`](SIGN_sst_pred/README.md).
+These are standalone, experiment-specific projects rather than alternative
+`SIGN-phase` entry points. Their layouts intentionally follow their native
+PyTorch-Geometric data and prediction workflows. `SIGN_sst_pred` includes its
+raw PyG input under `SIGN_data/enso_71987`; `SIGN_fhn_pred` requires a staged
+PyG partition input. Read their package README files before running:
+[`SIGN_fhn_pred/README.md`](SIGN_fhn_pred/README.md) and
+[`SIGN_sst_pred/README.md`](SIGN_sst_pred/README.md).
 
 ### Inspect or expand robustness protocols
 

@@ -9,27 +9,12 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 import datetime
 import sys
-sys.path.append("..") 
-sys.path.append(".") 
+sys.path.append("..")
+sys.path.append(".")
 import torchdiffeq._impl as ode
 from model.utils import *
 import torch_geometric
 from torch_geometric.nn import MessagePassing
-
-
-#ode.odeint(model, x0, vt, para, method=self.method) 
-
-# def seed_torch(seed=1029):
-# 	random.seed(seed)
-# 	os.environ['PYTHONHASHSEED'] = str(seed) # 为了禁止hash随机化，使得实验可复现
-# 	np.random.seed(seed)
-# 	torch.manual_seed(seed)
-# 	torch.cuda.manual_seed(seed)
-# 	torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
-# 	torch.backends.cudnn.benchmark = False
-# 	torch.backends.cudnn.deterministic = True
-
-# seed_torch()
 
 
 class HeatDiffusion(MessagePassing):
@@ -55,7 +40,6 @@ class HeatDiffusion(MessagePassing):
 
     def update(self, aggr_out):
         return aggr_out
-
 
 
 class Kuramoto(MessagePassing):
@@ -108,20 +92,12 @@ class SIS(MessagePassing):
 
         out = self.a * x
         out += self.propagate(edge_index, x=x, edge_attr=self.edge_attr)
-        # out = self.propagate(edge_index, x=x, edge_attr=self.edge_attr)
+
         return out
-    
+
     def message(self, x_i, x_j, edge_attr):
-        #return edge_attr * x_i * x_j * 0.1
+
         return x_j - x_i * x_j
-    
-    # def update(self, aggr_out, x):
-    #     return aggr_out + self.a * x
-
-
-
-
-
 
 
 class GeneDynamics(MessagePassing):
@@ -154,8 +130,7 @@ class GeneDynamics(MessagePassing):
         return self.e * edge_attr * (torch.pow(x_j, self.h)/(1 + torch.pow(x_j, self.h)))
 
     def update(self, aggr_out):
-        return aggr_out 
-
+        return aggr_out
 
 
 class MutualDynamics(MessagePassing):
@@ -194,7 +169,6 @@ class MutualDynamics(MessagePassing):
         return aggr_out + x * (1 - x/self.k) * (x/self.c - 1)
 
 
-
 class RosslerDynamics(MessagePassing):
     """
     :param t:  time tick
@@ -202,7 +176,7 @@ class RosslerDynamics(MessagePassing):
     :return:   dxi1/dt = -wixi2 - xi3 + e \sum Aij (xj1- xi1)
                dxi2/dt = wixi1 + axi2
                dxi3/dt = b + xi3(xi1 + c)
-     
+
     If t is not used, then it is autonomous system, only the time difference matters in numerical computing
     """
     def __init__(self, edge_index, edge_attr = None, aggr = 'sum'):
@@ -218,7 +192,6 @@ class RosslerDynamics(MessagePassing):
         self.b = 0.2
         self.c = -6
         self.w = 1
-
 
 
     def forward(self, t, x):
@@ -290,7 +263,7 @@ class FitzHughDynamics(MessagePassing):
     :param x:  initial value:  is 2d row vector feature, n * dim
     :return:   dxi1/dt = xi1 - xi1^3 -xi2 - e * sum Aij * (Xj1-xi1)/kin
                dxi2/dt = a + bxi1 + c xi2
-     
+
     If t is not used, then it is autonomous system, only the time difference matters in numerical computing
     """
     def __init__(self, edge_index, noise = 0, stre = 0.1, edge_attr = None, aggr = 'add'):
@@ -321,7 +294,7 @@ class FitzHughDynamics(MessagePassing):
 
     def update(self, aggr_out, x):
         x_d1 = x[:,[0]] - self.v * x[:,[0]]**3 - x[:,[1]] + 1
-        x_d2 = self.c * (self.a  + x[:,[0]] - self.b * x[:,[1]]) #c(V + a - bw) -> cx[0] + ca - bcx[1]// 0.05, 0.1, -0.03
+        x_d2 = self.c * (self.a  + x[:,[0]] - self.b * x[:,[1]])
         return aggr_out + torch.cat([x_d1, x_d2], 1)
 
 
@@ -329,8 +302,8 @@ class HRDynamics(MessagePassing):
     """
     :param t:  time tick
     :param x:  initial value:  is 3d row vector feature, n * dim
-    :return:   
-     
+    :return:
+
     If t is not used, then it is autonomous system, only the time difference matters in numerical computing
     """
     def __init__(self, edge_index, edge_attr = None, aggr = 'add'):
@@ -357,8 +330,8 @@ class HRDynamics(MessagePassing):
 
     def message(self, x_i, x_j, edge_attr):
         device = x_i.device
-        x_d1 = edge_attr * (x_j[:,[0]] - x_i[:,[0]]) * self.e 
-        #x_d1 = edge_attr * 0.15 *(2 - x_i[:,[0]]) * torch.sigmoid(10 * (x_j[:, [0]] - 1))
+        x_d1 = edge_attr * (x_j[:,[0]] - x_i[:,[0]]) * self.e
+
         x_d2 = torch.zeros(x_d1.shape).to(device)
         x_d3 = torch.zeros(x_d1.shape).to(device)
         return torch.cat([x_d1, x_d2, x_d3], 1)
@@ -370,12 +343,9 @@ class HRDynamics(MessagePassing):
         return aggr_out + torch.cat([x_d1, x_d2, x_d3], 1)
 
 
-
 if "__main__" == __name__:
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--cuda", type=str, default=None, help="Cuda")
-    
-    # args = parser.parse_args()
+
+
     A = torch.tensor([[0,1,2,3,2,1],[3,2,1,0,3,0]])
     model = HeatDiffusion(A)
     t = torch.linspace(0, 10, 100)

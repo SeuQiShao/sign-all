@@ -9,8 +9,6 @@ from model.BasisClassifier import GCN_Classifier, MLP_Classifier
 from model import utils
 
 
-
-
 def load_decoder(args):
     if args.decoder == "DGSI":
         decoder = DGSIDecoder(
@@ -20,9 +18,9 @@ def load_decoder(args):
         decoder = CGSIDecoder(
             args,
     )
-    
+
     decoder, num_GPU = utils.distribute_over_GPUs(args, decoder, num_GPU=args.num_GPU)
-    # print("Let's use", num_GPU, "GPUs!")
+
 
     if args.load_folder:
         print("Loading model file")
@@ -36,23 +34,18 @@ def load_decoder(args):
 def load_model(args):
 
     decoder = load_decoder(args)
-    # if args.use_encoder:
-    #     encoder = load_encoder(args)
-    #     optimizer = optim.Adam(
-    #         list(encoder.parameters()) + list(decoder.parameters()) + list(classifier_F.parameters()) + list(classifier_C.parameters()),
-    #         lr=args.lr,
-    #     )
-    #     scheduler = lr_scheduler.StepLR(
-    #         optimizer,
-    #         step_size=args.lr_decay,
-    #         gamma=args.gamma,)
 
-    #     return (
+
+    #     )
+
+    #         optimizer,
+
+
     #        encoder, decoder, optimizer, scheduler
     #     )
-    # else:
+
     encoder = None
-    #edge_probs = load_distribution(args)
+
     optimizer = optim.Adam(
         list(decoder.parameters()),
         lr=args.lr,

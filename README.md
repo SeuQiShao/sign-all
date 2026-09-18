@@ -28,17 +28,22 @@ python SIGN-phase\scripts\verify_package.py
 
 The project relies on PyTorch and PyTorch Geometric. For GPU use, install the PyTorch build compatible with your CUDA version before installing the remaining requirements.
 
-### Run representative workflows
+### Choose a workflow
 
-From `code/`, the compact Fig. 2 discovery benchmark can be run with:
+`SIGN-phase` is the primary algorithm entry point. It contains the canonical
+Phase-I support-discovery and Phase-II coefficient-refinement implementation.
+For a compact, paper-specific Fig. 2 reproduction, use the separate
+`SIGN-benchmarks` runner:
 
 ```powershell
-python SIGN-main\run_fig2.py `
+python SIGN-benchmarks\run_fig2.py `
   --data-root SIGN-data\synthetic `
-  --output SIGN-main\output\fig2
+  --output SIGN-benchmarks\output\fig2
 ```
 
-The experiment-specific prediction packages are:
+The FHN and SST prediction workflows are independent experiment packages. They
+retain their native project layouts because they use distinct PyTorch-Geometric
+data interfaces and prediction protocols:
 
 ```powershell
 cd SIGN_fhn_pred
@@ -66,12 +71,12 @@ python code\plot_fig3.py
 
 ## Code structure
 
-The main implementation components are:
+The implementation is organized by task:
 
-- `SIGN-main/`: compact complete Phase-I/Phase-II path for the Fig. 2 benchmark.
-- `SIGN-phase/`: canonical E2V3 implementation for support discovery and fixed-support coefficient refinement.
-- `SIGN_fhn_pred/`: FHN network-prediction experiment for the partitioned `bn-human` protocol.
-- `SIGN_sst_pred/`: ENSO/SST prediction experiment with the 96/24 split and Fourier time basis.
+- `SIGN-phase/`: primary SIGN algorithm entry point and canonical E2V3 implementation.
+- `SIGN-benchmarks/`: compact Fig. 2 benchmark runner that invokes `SIGN-phase` with the manuscript's fixed clean setting.
+- `SIGN_fhn_pred/`: standalone FHN network-prediction project for the partitioned `bn-human` protocol.
+- `SIGN_sst_pred/`: standalone ENSO/SST prediction project with the 96/24 split and Fourier time basis.
 - `Sign-Robust/`: declarative robustness configurations, validators, and experiment-matrix utilities.
 - `Data_generation/`: simulation, graph, robustness, and data-preparation tools.
 - `SIGN-data/`: bundled smoke-scale synthetic data plus FHN and SST examples.

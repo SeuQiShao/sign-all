@@ -2,7 +2,7 @@ import time
 import os
 import torch
 import matplotlib
-matplotlib.use('Agg') 
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -43,7 +43,7 @@ class Logger:
             sympath = os.path.join(args.sym_save_folder, args.expername)
             if os.path.islink(sympath):
                 os.remove(sympath)
-            ## check whether args.log_path is absolute path and if not concatenate with current working directory
+
             if os.path.isabs(args.log_path):
                 log_link = args.log_path
             else:
@@ -149,7 +149,7 @@ class Logger:
             if args.dims > 1:
                 specifier = "final" + str(args.k)
             else:
-                specifier = "final" 
+                specifier = "final"
 
         # Save the model checkpoint
         self.save_checkpoint(args, encoder, decoder, classifier_C, classifier_F,optimizer, specifier=specifier)
