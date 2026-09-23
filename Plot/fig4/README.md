@@ -19,8 +19,5 @@ alongside the plots.
 in `plot_data` are the direct plotting inputs and are sufficient to reproduce
 the figure.
 
-Panel b uses the original recorded sampling-point and sampling-interval
-values in `plot_data`, including their recorded mean/SD columns. The displayed
-bands are therefore the original recorded values; they are not estimated
-sampling bands.
+
 
